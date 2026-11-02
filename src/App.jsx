@@ -1,17 +1,14 @@
+import Header from "./Components/Header.jsx";
+import SignIn from "./Components/SignIn.jsx";
+
 function App() {
+  if (window.location.pathname === "/signin") {
+    return <SignIn />;
+  }
+
   return (
     <main className="min-h-screen bg-white text-[#6B352A]">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
-        <a href="#home" className="text-2xl font-bold tracking-tight">
-          forma<span className="ml-1">.</span>
-        </a>
-        <a
-          href="#features"
-          className="rounded-full border-2 border-[#6B352A] px-5 py-2 text-sm font-semibold transition hover:bg-[#6B352A] hover:text-[#FFF1A6]"
-        >
-          What it does
-        </a>
-      </header>
+      <Header />
 
       <section
         id="home"
