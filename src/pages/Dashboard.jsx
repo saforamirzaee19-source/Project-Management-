@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Header from "../components/Header.jsx";
+import ProjectsManager from "../components/ProjectsManager.jsx";
 import Sidebar from "../components/Sidebar.jsx";
 import { getTasks } from "../services/tasks.js";
 
@@ -30,7 +31,7 @@ function Dashboard() {
 
   const activeTasks = tasks.filter((task) => task.status !== "Completed");
   const stats = [
-    { label: "My tasks", value: activeTasks.length },
+    { label: "My Projects", value: activeTasks.length },
     {
       label: "In progress",
       value: activeTasks.filter((task) => task.status === "In progress").length,
@@ -112,6 +113,7 @@ function Dashboard() {
               </section>
             </>
           )}
+          <ProjectsManager />
         </main>
       </div>
     </div>
