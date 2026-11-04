@@ -310,128 +310,128 @@ function ProjectsManager() {
         </button>
       </div>
 
-      {projectsQuery.isError ? (
-        <div className="mt-5 rounded-xl border border-red-300 p-4">
-          <p role="alert">
-            Couldn’t load projects: {projectsQuery.error.message}
-          </p>
-          <button
-            className="mt-3 font-semibold underline underline-offset-2"
-            onClick={() => projectsQuery.refetch()}
-            type="button"
-          >
-            Try again
-          </button>
-        </div>
-      ) : projectsQuery.isPending ? (
-        <p className="mt-5" role="status">
-          Loading projects…
-        </p>
-      ) : (
-        <>
-          {actionError && (
-            <p className="mt-4 text-sm text-red-700" role="alert">
-              {actionError}
+        {projectsQuery.isError ? (
+          <div className="mt-5 rounded-xl border border-red-300 p-4">
+            <p role="alert">
+              Couldn’t load projects: {projectsQuery.error.message}
             </p>
-          )}
-          <div className="mt-5 overflow-x-auto">
-            <table className="w-full min-w-[980px] border-collapse text-left text-sm">
-              <thead>
-                <tr className="border-b border-[#6B352A]/15 text-[#6B352A]/70">
-                  <th className="px-3 py-3 font-semibold" scope="col">
-                    Title
-                  </th>
-                  <th className="px-3 py-3 font-semibold" scope="col">
-                    Owner
-                  </th>
-                  <th className="px-3 py-3 font-semibold" scope="col">
-                    Members
-                  </th>
-                  <th className="px-3 py-3 font-semibold" scope="col">
-                    Created at
-                  </th>
-                  <th className="px-3 py-3 font-semibold" scope="col">
-                    Updated at
-                  </th>
-                  <th className="px-3 py-3 font-semibold" scope="col">
-                    Completed at
-                  </th>
-                  <th className="px-3 py-3 text-right font-semibold" scope="col">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#6B352A]/10">
-                {projects.map((project) => (
-                  <tr key={project.id}>
-                    <th className="px-3 py-4 font-medium" scope="row">
-                      <p className="font-semibold">
-                        {project.title || project.name}
-                      </p>
-                      {project.description && (
-                        <p className="mt-1 max-w-md truncate font-normal text-[#6B352A]/70">
-                          {project.description}
-                        </p>
-                      )}
-                    </th>
-                    <td className="px-3 py-4">
-                      <span
-                        title={project.owner || project.createdBy || userId}
-                      >
-                        {formatUserId(
-                          project.owner || project.createdBy || userId,
-                          userId,
-                        )}
-                      </span>
-                    </td>
-                    <td className="px-3 py-4">
-                      {project.members?.length
-                        ? project.members
-                            .map((member) => formatUserId(member, userId))
-                            .join(", ")
-                        : "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-4">
-                      {formatDate(project.createdAt)}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-4">
-                      {formatDate(project.updatedAt)}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-4">
-                      {formatDate(project.completedAt)}
-                    </td>
-                    <td className="px-3 py-4">
-                      <div className="flex justify-end gap-3">
-                        <button
-                          className="font-semibold underline underline-offset-2"
-                          onClick={() => openEditModal(project)}
-                          type="button"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="font-semibold text-red-700 underline underline-offset-2"
-                          onClick={() => handleDelete(project)}
-                          type="button"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {projects.length === 0 && (
-                  <tr>
-                    <td className="px-3 py-8 text-center" colSpan={7}>
-                      No projects yet. Create one to get started.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+            <button
+              className="mt-3 font-semibold underline underline-offset-2"
+              onClick={() => projectsQuery.refetch()}
+              type="button"
+            >
+              Try again
+            </button>
           </div>
-        </>
-      )}
+        ) : projectsQuery.isPending ? (
+          <p className="mt-5" role="status">
+            Loading projects…
+          </p>
+        ) : (
+          <>
+            {actionError && (
+              <p className="mt-4 text-sm text-red-700" role="alert">
+                {actionError}
+              </p>
+            )}
+            <div className="mt-5 overflow-x-auto">
+              <table className="w-full min-w-[980px] border-collapse text-left text-sm">
+                <thead>
+                  <tr className="border-b border-[#6B352A]/15 text-[#6B352A]/70">
+                    <th className="px-3 py-3 font-semibold" scope="col">
+                      Title
+                    </th>
+                    <th className="px-3 py-3 font-semibold" scope="col">
+                      Owner
+                    </th>
+                    <th className="px-3 py-3 font-semibold" scope="col">
+                      Members
+                    </th>
+                    <th className="px-3 py-3 font-semibold" scope="col">
+                      Created at
+                    </th>
+                    <th className="px-3 py-3 font-semibold" scope="col">
+                      Updated at
+                    </th>
+                    <th className="px-3 py-3 font-semibold" scope="col">
+                      Completed at
+                    </th>
+                    <th className="px-3 py-3 text-right font-semibold" scope="col">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#6B352A]/10">
+                  {projects.map((project) => (
+                    <tr key={project.id}>
+                      <th className="px-3 py-4 font-medium" scope="row">
+                        <p className="font-semibold">
+                          {project.title || project.name}
+                        </p>
+                        {project.description && (
+                          <p className="mt-1 max-w-md truncate font-normal text-[#6B352A]/70">
+                            {project.description}
+                          </p>
+                        )}
+                      </th>
+                      <td className="px-3 py-4">
+                        <span
+                          title={project.owner || project.createdBy || userId}
+                        >
+                          {formatUserId(
+                            project.owner || project.createdBy || userId,
+                            userId,
+                          )}
+                        </span>
+                      </td>
+                      <td className="px-3 py-4">
+                        {project.members?.length
+                          ? project.members
+                              .map((member) => formatUserId(member, userId))
+                              .join(", ")
+                          : "—"}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-4">
+                        {formatDate(project.createdAt)}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-4">
+                        {formatDate(project.updatedAt)}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-4">
+                        {formatDate(project.completedAt)}
+                      </td>
+                      <td className="px-3 py-4">
+                        <div className="flex justify-end gap-3">
+                          <button
+                            className="font-semibold underline underline-offset-2"
+                            onClick={() => openEditModal(project)}
+                            type="button"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="font-semibold text-red-700 underline underline-offset-2"
+                            onClick={() => handleDelete(project)}
+                            type="button"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {projects.length === 0 && (
+                    <tr>
+                      <td className="px-3 py-8 text-center" colSpan={7}>
+                        No projects yet. Create one to get started.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+              </div>
+          </>
+        )}
 
       {modalOpen && (
         <ProjectModal
