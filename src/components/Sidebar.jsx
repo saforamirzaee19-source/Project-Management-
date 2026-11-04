@@ -9,7 +9,7 @@ const tabs = [
 
 function Sidebar() {
   return (
-    <aside className="bg-[#6B352A] p-6 text-white md:min-h-screen md:w-60">
+    <aside className="bg-[#6B352A] p-6 text-white md:fixed md:inset-y-0 md:left-0 md:z-40 md:w-60 md:overflow-y-auto">
       <Link to="/" className="text-2xl font-bold">
         forma.
       </Link>

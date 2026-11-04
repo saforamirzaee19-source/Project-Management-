@@ -1,37 +1,31 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Header from "../components/Header.jsx";
 import ProjectsManager from "../components/ProjectsManager.jsx";
 import Sidebar from "../components/Sidebar.jsx";
 import { getTasks } from "../services/tasks.js";
+import { getProjects } from "../services/projects.js";
 
 function Dashboard() {
-  const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [reloadCount, setReloadCount] = useState(0);
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    getTasks(controller.signal)
-      .then(setTasks)
-      .catch((loadError) => {
-        if (loadError.name !== "AbortError") {
-          setError(loadError.message);
-        }
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) {
-          setLoading(false);
-        }
-      });
-
-    return () => controller.abort();
-  }, [reloadCount]);
+  const tasksQuery = useQuery({
+    queryKey: ["tasks"],
+    queryFn: ({ signal }) => getTasks(signal),
+  });
+  const projectsQuery = useQuery({
+    queryKey: ["projects"],
+    queryFn: ({ signal }) => getProjects(signal),
+  });
+  const tasks = tasksQuery.data ?? [];
 
   const activeTasks = tasks.filter((task) => task.status !== "Completed");
   const stats = [
-    { label: "My Projects", value: activeTasks.length },
+    {
+      label: "My Projects",
+      value: projectsQuery.isPending
+        ? "…"
+        : projectsQuery.isError
+          ? "—"
+          : projectsQuery.data.length,
+    },
     {
       label: "In progress",
       value: activeTasks.filter((task) => task.status === "In progress").length,
@@ -43,30 +37,28 @@ function Dashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FFFDF5] text-[#6B352A] md:flex">
+    <div className="min-h-screen bg-[#FFFDF5] text-[#6B352A]">
       <Sidebar />
 
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 md:ml-60">
         <Header page="dashboard" />
 
         <main id="overview" className="p-6 md:p-8">
           <h2 className="text-2xl font-bold">Good morning, Ahmad!</h2>
           <p className="mt-2">Here’s what’s happening with your work.</p>
 
-          {loading ? (
+          {tasksQuery.isPending ? (
             <p className="mt-8" role="status">
               Loading dashboard…
             </p>
-          ) : error ? (
+          ) : tasksQuery.isError ? (
             <div className="mt-8 rounded-2xl border border-red-300 bg-white p-5">
-              <p role="alert">Couldn’t load dashboard data: {error}</p>
+              <p role="alert">
+                Couldn’t load dashboard data: {tasksQuery.error.message}
+              </p>
               <button
                 className="mt-4 rounded-full bg-[#6B352A] px-4 py-2 text-sm font-semibold text-white"
-                onClick={() => {
-                  setError("");
-                  setLoading(true);
-                  setReloadCount((count) => count + 1);
-                }}
+                onClick={() => tasksQuery.refetch()}
                 type="button"
               >
                 Try again

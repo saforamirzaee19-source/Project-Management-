@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 function Header({ page = "home" }) {
   const headerClass =
     page === "dashboard"
-      ? "flex flex-wrap items-center justify-between gap-4 border-b border-[#6B352A]/15 bg-white px-6 py-5"
+      ? "sticky top-0 z-30 flex flex-wrap items-center justify-between gap-4 border-b border-[#6B352A]/15 bg-white px-6 py-5"
       : "mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6";
 
   return (

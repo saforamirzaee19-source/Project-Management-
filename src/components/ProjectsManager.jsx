@@ -1,3 +1,4 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import {
   createProject,
@@ -5,6 +6,7 @@ import {
   getProjects,
   updateProject,
 } from "../services/projects.js";
+import useCurrentUserId from "../contexts/useCurrentUserId.js";
 
 const emptyProject = {
   name: "",
@@ -12,6 +14,14 @@ const emptyProject = {
   status: "Planning",
   dueDate: "",
 };
+
+function formatUserId(value, currentUserId) {
+  if (!value) {
+    return "—";
+  }
+
+  return value === currentUserId ? "You" : `${value.slice(0, 12)}…`;
+}
 
 function ProjectModal({ project, saving, error, onClose, onSave }) {
   const [form, setForm] = useState(() => project ?? emptyProject);
@@ -143,34 +153,35 @@ function ProjectModal({ project, saving, error, onClose, onSave }) {
 }
 
 function ProjectsManager() {
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState("");
+  const queryClient = useQueryClient();
+  const userId = useCurrentUserId();
+  const projectsQuery = useQuery({
+    queryKey: ["projects"],
+    queryFn: ({ signal }) => getProjects(signal),
+  });
+  const projects = projectsQuery.data ?? [];
   const [modalProject, setModalProject] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [saving, setSaving] = useState(false);
   const [modalError, setModalError] = useState("");
   const [actionError, setActionError] = useState("");
-  const [reloadCount, setReloadCount] = useState(0);
 
-  useEffect(() => {
-    const controller = new AbortController();
+  const createMutation = useMutation({
+    mutationFn: createProject,
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["projects"] }),
+  });
+  const updateMutation = useMutation({
+    mutationFn: ({ id, project }) => updateProject(id, project),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["projects"] }),
+  });
+  const deleteMutation = useMutation({
+    mutationFn: deleteProject,
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["projects"] }),
+  });
 
-    getProjects(controller.signal)
-      .then(setProjects)
-      .catch((error) => {
-        if (error.name !== "AbortError") {
-          setLoadError(error.message);
-        }
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) {
-          setLoading(false);
-        }
-      });
-
-    return () => controller.abort();
-  }, [reloadCount]);
+  const saving = createMutation.isPending || updateMutation.isPending;
 
   function openCreateModal() {
     setModalProject(null);
@@ -191,27 +202,31 @@ function ProjectsManager() {
   }
 
   async function handleSave(projectData) {
-    setSaving(true);
     setModalError("");
 
     try {
       if (modalProject) {
-        const updatedProject = await updateProject(modalProject.id, projectData);
-        setProjects((current) =>
-          current.map((project) =>
-            project.id === modalProject.id ? updatedProject : project,
-          ),
-        );
+        const updatedProject = {
+          ...projectData,
+          owner: modalProject.owner,
+          createdBy: modalProject.createdBy,
+        };
+        await updateMutation.mutateAsync({
+          id: modalProject.id,
+          project: updatedProject,
+        });
       } else {
-        const createdProject = await createProject(projectData);
-        setProjects((current) => [...current, createdProject]);
+        const newProject = {
+          ...projectData,
+          owner: userId,
+          createdBy: userId,
+        };
+        await createMutation.mutateAsync(newProject);
       }
 
       setModalOpen(false);
     } catch (error) {
       setModalError(error.message);
-    } finally {
-      setSaving(false);
     }
   }
 
@@ -223,10 +238,7 @@ function ProjectsManager() {
     setActionError("");
 
     try {
-      await deleteProject(project.id);
-      setProjects((current) =>
-        current.filter((item) => item.id !== project.id),
-      );
+      await deleteMutation.mutateAsync(project.id);
     } catch (error) {
       setActionError(`Couldn’t delete "${project.name}": ${error.message}`);
     }
@@ -251,22 +263,20 @@ function ProjectsManager() {
         </button>
       </div>
 
-      {loadError ? (
+      {projectsQuery.isError ? (
         <div className="mt-5 rounded-xl border border-red-300 p-4">
-          <p role="alert">Couldn’t load projects: {loadError}</p>
+          <p role="alert">
+            Couldn’t load projects: {projectsQuery.error.message}
+          </p>
           <button
             className="mt-3 font-semibold underline underline-offset-2"
-            onClick={() => {
-              setLoadError("");
-              setLoading(true);
-              setReloadCount((count) => count + 1);
-            }}
+            onClick={() => projectsQuery.refetch()}
             type="button"
           >
             Try again
           </button>
         </div>
-      ) : loading ? (
+      ) : projectsQuery.isPending ? (
         <p className="mt-5" role="status">
           Loading projects…
         </p>
@@ -289,6 +299,12 @@ function ProjectsManager() {
                   </th>
                   <th className="px-3 py-3 font-semibold" scope="col">
                     Due date
+                  </th>
+                  <th className="px-3 py-3 font-semibold" scope="col">
+                    Owner
+                  </th>
+                  <th className="px-3 py-3 font-semibold" scope="col">
+                    Created by
                   </th>
                   <th className="px-3 py-3 text-right font-semibold" scope="col">
                     Actions
@@ -315,6 +331,16 @@ function ProjectsManager() {
                       {project.dueDate || "—"}
                     </td>
                     <td className="px-3 py-4">
+                      <span title={project.owner}>
+                        {formatUserId(project.owner, userId)}
+                      </span>
+                    </td>
+                    <td className="px-3 py-4">
+                      <span title={project.createdBy}>
+                        {formatUserId(project.createdBy, userId)}
+                      </span>
+                    </td>
+                    <td className="px-3 py-4">
                       <div className="flex justify-end gap-3">
                         <button
                           className="font-semibold underline underline-offset-2"
@@ -336,7 +362,7 @@ function ProjectsManager() {
                 ))}
                 {projects.length === 0 && (
                   <tr>
-                    <td className="px-3 py-8 text-center" colSpan={4}>
+                    <td className="px-3 py-8 text-center" colSpan={6}>
                       No projects yet. Create one to get started.
                     </td>
                   </tr>
