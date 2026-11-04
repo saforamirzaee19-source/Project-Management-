@@ -1,0 +1,17 @@
+{
+  "tasks": [
+    { "id": "1", "title": "Plan the next team meeting", "status": "In progress" },
+    { "id": "2", "title": "Review project notes", "status": "Up next" },
+    { "id": "3", "title": "Share the weekly update", "status": "In progress" },
+    { "id": "4", "title": "Prepare the project brief", "status": "Up next" },
+    { "id": "5", "title": "Collect team feedback", "status": "In progress" },
+    { "id": "6", "title": "Organize design references", "status": "Up next" },
+    { "id": "7", "title": "Draft next sprint goals", "status": "Up next" },
+    { "id": "8", "title": "Review the launch checklist", "status": "Up next" },
+    { "id": "9", "title": "Finalize kickoff notes", "status": "Completed", "completedThisWeek": true },
+    { "id": "10", "title": "Approve the project timeline", "status": "Completed", "completedThisWeek": true },
+    { "id": "11", "title": "Set up the shared workspace", "status": "Completed", "completedThisWeek": true },
+    { "id": "12", "title": "Confirm team responsibilities", "status": "Completed", "completedThisWeek": true },
+    { "id": "13", "title": "Create the first task list", "status": "Completed", "completedThisWeek": true }
+  ]
+}
