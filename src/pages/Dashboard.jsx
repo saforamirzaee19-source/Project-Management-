@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import Header from "../components/Header.jsx";
-import ProjectsManager from "../components/ProjectsManager.jsx";
+import ProjectsManager from "../components/projects/ProjectsManager.jsx";
 import Sidebar from "../components/Sidebar.jsx";
+import TasksManager from "../components/tasks/TasksManager.jsx";
 import { getTasks } from "../services/tasks.js";
 import { getProjects } from "../services/projects.js";
 
@@ -31,8 +32,8 @@ function Dashboard() {
       value: activeTasks.filter((task) => task.status === "In progress").length,
     },
     {
-      label: "Completed this week",
-      value: tasks.filter((task) => task.completedThisWeek).length,
+      label: "Completed",
+      value: tasks.filter((task) => task.status === "Completed").length,
     },
   ];
 
@@ -81,7 +82,7 @@ function Dashboard() {
               </section>
 
               <section
-                id="tasks"
+                id="recent-tasks"
                 className="mt-8 rounded-2xl border border-[#6B352A]/15 bg-white p-5"
               >
                 <h2 className="text-lg font-bold">Recent tasks</h2>
@@ -105,6 +106,7 @@ function Dashboard() {
               </section>
             </>
           )}
+          <TasksManager />
           <ProjectsManager />
         </main>
       </div>

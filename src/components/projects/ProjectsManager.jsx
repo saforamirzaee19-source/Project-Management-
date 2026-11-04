@@ -5,8 +5,8 @@ import {
   deleteProject,
   getProjects,
   updateProject,
-} from "../services/projects.js";
-import useCurrentUserId from "../contexts/useCurrentUserId.js";
+} from "../../services/projects.js";
+import useCurrentUserId from "../../contexts/useCurrentUserId.js";
 
 const emptyProject = {
   title: "",
@@ -242,7 +242,7 @@ function ProjectsManager() {
       if (modalProject) {
         const updatedProject = {
           ...projectData,
-          owner: modalProject.owner,
+          owner: modalProject.owner || modalProject.createdBy || userId,
           createdBy: modalProject.createdBy,
           createdAt: modalProject.createdAt,
           updatedAt: now,
@@ -375,8 +375,13 @@ function ProjectsManager() {
                       )}
                     </th>
                     <td className="px-3 py-4">
-                      <span title={project.owner}>
-                        {formatUserId(project.owner, userId)}
+                      <span
+                        title={project.owner || project.createdBy || userId}
+                      >
+                        {formatUserId(
+                          project.owner || project.createdBy || userId,
+                          userId,
+                        )}
                       </span>
                     </td>
                     <td className="px-3 py-4">

@@ -1,74 +1,185 @@
 {
   "tasks": [
     {
-      "id": "1",
       "title": "Plan the next team meeting",
-      "status": "In progress"
+      "priority": "High",
+      "status": "In progress",
+      "assignee": "",
+      "projectId": "2",
+      "parentId": "10",
+      "dueDate": "2026-11-10",
+      "createdBy": "user-1",
+      "createdAt": "2026-11-01T09:00:00.000Z",
+      "updatedAt": "2026-11-04T14:05:05.573Z",
+      "id": "1"
     },
     {
       "id": "2",
       "title": "Review project notes",
-      "status": "Up next"
+      "priority": "Medium",
+      "status": "Up next",
+      "assignee": "user-1",
+      "projectId": "2",
+      "parentId": "",
+      "dueDate": "2026-11-12",
+      "createdBy": "user-1",
+      "createdAt": "2026-11-01T10:00:00.000Z",
+      "updatedAt": "2026-11-01T10:00:00.000Z",
+      "completedAt": null
     },
     {
       "id": "3",
       "title": "Share the weekly update",
-      "status": "In progress"
+      "priority": "Low",
+      "status": "In progress",
+      "assignee": "",
+      "projectId": "3",
+      "parentId": "",
+      "dueDate": "2026-11-14",
+      "createdBy": "user-1",
+      "createdAt": "2026-11-02T09:00:00.000Z",
+      "updatedAt": "2026-11-03T09:00:00.000Z",
+      "completedAt": null
     },
     {
       "id": "4",
       "title": "Prepare the project brief",
-      "status": "Up next"
+      "priority": "High",
+      "status": "Up next",
+      "assignee": "user-1",
+      "projectId": "2",
+      "parentId": "",
+      "dueDate": "2026-11-15",
+      "createdBy": "user-1",
+      "createdAt": "2026-11-02T10:00:00.000Z",
+      "updatedAt": "2026-11-02T10:00:00.000Z",
+      "completedAt": null
     },
     {
       "id": "5",
       "title": "Collect team feedback",
-      "status": "In progress"
+      "priority": "Medium",
+      "status": "In progress",
+      "assignee": "",
+      "projectId": "3",
+      "parentId": "",
+      "dueDate": "2026-11-16",
+      "createdBy": "user-1",
+      "createdAt": "2026-11-03T09:00:00.000Z",
+      "updatedAt": "2026-11-04T09:00:00.000Z",
+      "completedAt": null
     },
     {
       "id": "6",
       "title": "Organize design references",
-      "status": "Up next"
+      "priority": "Low",
+      "status": "Up next",
+      "assignee": "",
+      "projectId": "2",
+      "parentId": "",
+      "dueDate": "2026-11-17",
+      "createdBy": "user-1",
+      "createdAt": "2026-11-03T10:00:00.000Z",
+      "updatedAt": "2026-11-03T10:00:00.000Z",
+      "completedAt": null
     },
     {
       "id": "7",
       "title": "Draft next sprint goals",
-      "status": "Up next"
+      "priority": "High",
+      "status": "Up next",
+      "assignee": "user-1",
+      "projectId": "2",
+      "parentId": "",
+      "dueDate": "2026-11-18",
+      "createdBy": "user-1",
+      "createdAt": "2026-11-04T09:00:00.000Z",
+      "updatedAt": "2026-11-04T09:00:00.000Z",
+      "completedAt": null
     },
     {
       "id": "8",
       "title": "Review the launch checklist",
-      "status": "Up next"
+      "priority": "Medium",
+      "status": "Up next",
+      "assignee": "",
+      "projectId": "3",
+      "parentId": "",
+      "dueDate": "2026-11-19",
+      "createdBy": "user-1",
+      "createdAt": "2026-11-04T10:00:00.000Z",
+      "updatedAt": "2026-11-04T10:00:00.000Z",
+      "completedAt": null
     },
     {
       "id": "9",
       "title": "Finalize kickoff notes",
+      "priority": "Medium",
       "status": "Completed",
-      "completedThisWeek": true
+      "assignee": "user-1",
+      "projectId": "2",
+      "parentId": "",
+      "dueDate": "2026-11-03",
+      "createdBy": "user-1",
+      "createdAt": "2026-10-28T09:00:00.000Z",
+      "updatedAt": "2026-11-03T09:00:00.000Z",
+      "completedAt": "2026-11-03T09:00:00.000Z"
     },
     {
       "id": "10",
       "title": "Approve the project timeline",
+      "priority": "High",
       "status": "Completed",
-      "completedThisWeek": true
+      "assignee": "user-1",
+      "projectId": "2",
+      "parentId": "",
+      "dueDate": "2026-11-03",
+      "createdBy": "user-1",
+      "createdAt": "2026-10-28T10:00:00.000Z",
+      "updatedAt": "2026-11-03T10:00:00.000Z",
+      "completedAt": "2026-11-03T10:00:00.000Z"
     },
     {
       "id": "11",
       "title": "Set up the shared workspace",
+      "priority": "Low",
       "status": "Completed",
-      "completedThisWeek": true
+      "assignee": "",
+      "projectId": "3",
+      "parentId": "",
+      "dueDate": "2026-11-02",
+      "createdBy": "user-1",
+      "createdAt": "2026-10-29T09:00:00.000Z",
+      "updatedAt": "2026-11-02T09:00:00.000Z",
+      "completedAt": "2026-11-02T09:00:00.000Z"
     },
     {
       "id": "12",
       "title": "Confirm team responsibilities",
+      "priority": "Medium",
       "status": "Completed",
-      "completedThisWeek": true
+      "assignee": "user-1",
+      "projectId": "2",
+      "parentId": "",
+      "dueDate": "2026-11-01",
+      "createdBy": "user-1",
+      "createdAt": "2026-10-29T10:00:00.000Z",
+      "updatedAt": "2026-11-01T10:00:00.000Z",
+      "completedAt": "2026-11-01T10:00:00.000Z"
     },
     {
       "id": "13",
       "title": "Create the first task list",
+      "priority": "Low",
       "status": "Completed",
-      "completedThisWeek": true
+      "assignee": "",
+      "projectId": "3",
+      "parentId": "",
+      "dueDate": "2026-10-31",
+      "createdBy": "user-1",
+      "createdAt": "2026-10-28T11:00:00.000Z",
+      "updatedAt": "2026-10-31T11:00:00.000Z",
+      "completedAt": "2026-10-31T11:00:00.000Z"
     }
   ],
   "projects": [
@@ -77,11 +188,13 @@
       "description": "Align on priorities and milestones for the next quarter.",
       "status": "In progress",
       "dueDate": "2027-01-10",
+      "owner": "user-1",
       "members": [
         "user-1"
       ],
-      "createdAt": null,
+      "createdAt": "2026-11-01T09:00:00.000Z",
       "updatedAt": "2026-11-04T06:03:55.708Z",
+      "completedAt": null,
       "id": "2"
     },
     {
@@ -90,21 +203,23 @@
       "description": "Summarize interviews and share findings with the product team.",
       "status": "Completed",
       "dueDate": "2026-10-28",
+      "owner": "user-1",
       "members": [],
-      "createdAt": null,
-      "updatedAt": null,
-      "completedAt": null
+      "createdAt": "2026-10-20T09:00:00.000Z",
+      "updatedAt": "2026-10-28T09:00:00.000Z",
+      "completedAt": "2026-10-28T09:00:00.000Z"
     },
     {
       "title": "Organize design references",
       "description": "Organizing design can be helpful to improve our team and have more powerful achievement.",
       "status": "Completed",
       "dueDate": "2026-11-06",
+      "owner": "user-1",
       "id": "jlL36Cm-UAc",
       "members": [],
-      "createdAt": null,
-      "updatedAt": null,
-      "completedAt": null
+      "createdAt": "2026-10-22T09:00:00.000Z",
+      "updatedAt": "2026-11-01T09:00:00.000Z",
+      "completedAt": "2026-11-01T09:00:00.000Z"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
