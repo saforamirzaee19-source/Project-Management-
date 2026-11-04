@@ -1,4 +1,5 @@
 import Header from "./Header.jsx";
+import { Link } from "react-router-dom";
 
 function Home() {
   return (
@@ -23,12 +24,12 @@ function Home() {
             tasks, deadlines, and ideas together, so everyone knows what to do
             next.
           </p>
-          <a
-            href="#features"
+          <Link
+            to="#features"
             className="mt-8 inline-flex items-center gap-3 rounded-full bg-[#6B352A] px-6 py-3 font-semibold text-[#FFF1A6] transition hover:opacity-90"
           >
             Take a look <span aria-hidden="true">→</span>
-          </a>
+          </Link>
         </div>
 
         <div
