@@ -9,10 +9,11 @@ import {
 import useCurrentUserId from "../contexts/useCurrentUserId.js";
 
 const emptyProject = {
-  name: "",
+  title: "",
   description: "",
   status: "Planning",
   dueDate: "",
+  members: "",
 };
 
 function formatUserId(value, currentUserId) {
@@ -23,8 +24,25 @@ function formatUserId(value, currentUserId) {
   return value === currentUserId ? "You" : `${value.slice(0, 12)}…`;
 }
 
+function formatDate(value) {
+  if (!value) {
+    return "—";
+  }
+
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "—" : date.toLocaleString();
+}
+
 function ProjectModal({ project, saving, error, onClose, onSave }) {
-  const [form, setForm] = useState(() => project ?? emptyProject);
+  const [form, setForm] = useState(() =>
+    project
+      ? {
+          ...project,
+          title: project.title || project.name || "",
+          members: (project.members || []).join(", "),
+        }
+      : emptyProject,
+  );
 
   useEffect(() => {
     function handleKeyDown(event) {
@@ -45,10 +63,14 @@ function ProjectModal({ project, saving, error, onClose, onSave }) {
   function handleSubmit(event) {
     event.preventDefault();
     onSave({
-      name: form.name.trim(),
+      title: form.title.trim(),
       description: form.description.trim(),
       status: form.status,
       dueDate: form.dueDate,
+      members: form.members
+        .split(",")
+        .map((member) => member.trim())
+        .filter(Boolean),
     });
   }
 
@@ -72,15 +94,15 @@ function ProjectModal({ project, saving, error, onClose, onSave }) {
         </h2>
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
           <label className="block text-sm font-semibold">
-            Project name
+            Project title
             <input
               autoFocus
               className="mt-2 w-full rounded-xl border border-[#6B352A]/30 px-4 py-3 font-normal outline-none focus:border-[#6B352A]"
               maxLength={100}
-              name="name"
+              name="title"
               onChange={handleChange}
               required
-              value={form.name}
+              value={form.title}
             />
           </label>
 
@@ -93,6 +115,17 @@ function ProjectModal({ project, saving, error, onClose, onSave }) {
               onChange={handleChange}
               rows={3}
               value={form.description}
+            />
+          </label>
+
+          <label className="block text-sm font-semibold">
+            Members (user IDs, separated by commas)
+            <input
+              className="mt-2 w-full rounded-xl border border-[#6B352A]/30 px-4 py-3 font-normal outline-none focus:border-[#6B352A]"
+              name="members"
+              onChange={handleChange}
+              placeholder="user-id-1, user-id-2"
+              value={form.members}
             />
           </label>
 
@@ -205,11 +238,19 @@ function ProjectsManager() {
     setModalError("");
 
     try {
+      const now = new Date().toISOString();
       if (modalProject) {
         const updatedProject = {
           ...projectData,
           owner: modalProject.owner,
           createdBy: modalProject.createdBy,
+          createdAt: modalProject.createdAt,
+          updatedAt: now,
+          completedAt:
+            projectData.status === "Completed"
+              ? modalProject.completedAt ||
+                (modalProject.status !== "Completed" ? now : undefined)
+              : undefined,
         };
         await updateMutation.mutateAsync({
           id: modalProject.id,
@@ -220,6 +261,10 @@ function ProjectsManager() {
           ...projectData,
           owner: userId,
           createdBy: userId,
+          createdAt: now,
+          updatedAt: now,
+          completedAt:
+            projectData.status === "Completed" ? now : undefined,
         };
         await createMutation.mutateAsync(newProject);
       }
@@ -231,7 +276,7 @@ function ProjectsManager() {
   }
 
   async function handleDelete(project) {
-    if (!window.confirm(`Delete "${project.name}"? This cannot be undone.`)) {
+    if (!window.confirm(`Delete "${project.title || project.name}"? This cannot be undone.`)) {
       return;
     }
 
@@ -240,7 +285,9 @@ function ProjectsManager() {
     try {
       await deleteMutation.mutateAsync(project.id);
     } catch (error) {
-      setActionError(`Couldn’t delete "${project.name}": ${error.message}`);
+      setActionError(
+        `Couldn’t delete "${project.title || project.name}": ${error.message}`,
+      );
     }
   }
 
@@ -288,23 +335,26 @@ function ProjectsManager() {
             </p>
           )}
           <div className="mt-5 overflow-x-auto">
-            <table className="w-full min-w-[640px] border-collapse text-left text-sm">
+            <table className="w-full min-w-[980px] border-collapse text-left text-sm">
               <thead>
                 <tr className="border-b border-[#6B352A]/15 text-[#6B352A]/70">
                   <th className="px-3 py-3 font-semibold" scope="col">
-                    Project
-                  </th>
-                  <th className="px-3 py-3 font-semibold" scope="col">
-                    Status
-                  </th>
-                  <th className="px-3 py-3 font-semibold" scope="col">
-                    Due date
+                    Title
                   </th>
                   <th className="px-3 py-3 font-semibold" scope="col">
                     Owner
                   </th>
                   <th className="px-3 py-3 font-semibold" scope="col">
-                    Created by
+                    Members
+                  </th>
+                  <th className="px-3 py-3 font-semibold" scope="col">
+                    Created at
+                  </th>
+                  <th className="px-3 py-3 font-semibold" scope="col">
+                    Updated at
+                  </th>
+                  <th className="px-3 py-3 font-semibold" scope="col">
+                    Completed at
                   </th>
                   <th className="px-3 py-3 text-right font-semibold" scope="col">
                     Actions
@@ -315,7 +365,9 @@ function ProjectsManager() {
                 {projects.map((project) => (
                   <tr key={project.id}>
                     <th className="px-3 py-4 font-medium" scope="row">
-                      <p className="font-semibold">{project.name}</p>
+                      <p className="font-semibold">
+                        {project.title || project.name}
+                      </p>
                       {project.description && (
                         <p className="mt-1 max-w-md truncate font-normal text-[#6B352A]/70">
                           {project.description}
@@ -323,22 +375,25 @@ function ProjectsManager() {
                       )}
                     </th>
                     <td className="px-3 py-4">
-                      <span className="rounded-full bg-[#FFF1A6] px-3 py-1 text-xs font-semibold">
-                        {project.status}
-                      </span>
-                    </td>
-                    <td className="px-3 py-4">
-                      {project.dueDate || "—"}
-                    </td>
-                    <td className="px-3 py-4">
                       <span title={project.owner}>
                         {formatUserId(project.owner, userId)}
                       </span>
                     </td>
                     <td className="px-3 py-4">
-                      <span title={project.createdBy}>
-                        {formatUserId(project.createdBy, userId)}
-                      </span>
+                      {project.members?.length
+                        ? project.members
+                            .map((member) => formatUserId(member, userId))
+                            .join(", ")
+                        : "—"}
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-4">
+                      {formatDate(project.createdAt)}
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-4">
+                      {formatDate(project.updatedAt)}
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-4">
+                      {formatDate(project.completedAt)}
                     </td>
                     <td className="px-3 py-4">
                       <div className="flex justify-end gap-3">
@@ -362,7 +417,7 @@ function ProjectsManager() {
                 ))}
                 {projects.length === 0 && (
                   <tr>
-                    <td className="px-3 py-8 text-center" colSpan={6}>
+                    <td className="px-3 py-8 text-center" colSpan={7}>
                       No projects yet. Create one to get started.
                     </td>
                   </tr>

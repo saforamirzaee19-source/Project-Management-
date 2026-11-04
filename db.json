@@ -73,25 +73,38 @@
   ],
   "projects": [
     {
-      "id": "2",
-      "name": "Team planning",
+      "title": "Team planning",
       "description": "Align on priorities and milestones for the next quarter.",
-      "status": "Planning",
-      "dueDate": "2027-01-10"
+      "status": "In progress",
+      "dueDate": "2027-01-10",
+      "members": [
+        "user-1"
+      ],
+      "createdAt": null,
+      "updatedAt": "2026-11-04T06:03:55.708Z",
+      "id": "2"
     },
     {
       "id": "3",
-      "name": "Customer research",
+      "title": "Customer research",
       "description": "Summarize interviews and share findings with the product team.",
       "status": "Completed",
-      "dueDate": "2026-10-28"
+      "dueDate": "2026-10-28",
+      "members": [],
+      "createdAt": null,
+      "updatedAt": null,
+      "completedAt": null
     },
     {
-      "name": "Organize design references",
+      "title": "Organize design references",
       "description": "Organizing design can be helpful to improve our team and have more powerful achievement.",
       "status": "Completed",
       "dueDate": "2026-11-06",
-      "id": "jlL36Cm-UAc"
+      "id": "jlL36Cm-UAc",
+      "members": [],
+      "createdAt": null,
+      "updatedAt": null,
+      "completedAt": null
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
