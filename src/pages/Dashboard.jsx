@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import Header from "../components/Header.jsx";
+import LoadingState from "../components/LoadingState.jsx";
 import Sidebar from "../components/Sidebar.jsx";
 import { getTasks } from "../services/tasks.js";
 import { getProjects } from "../services/projects.js";
@@ -43,10 +44,10 @@ function Dashboard() {
         <Header page="dashboard" />
 
         <main id="overview" className="p-6 md:p-8">
-          {tasksQuery.isPending ? (
-            <p className="mt-8" role="status">
-              Loading dashboard…
-            </p>
+          {tasksQuery.isPending || projectsQuery.isPending ? (
+            <div className="mt-8">
+              <LoadingState label="Loading dashboard stats…" />
+            </div>
           ) : tasksQuery.isError ? (
             <div className="mt-8 rounded-2xl border border-red-300 bg-white p-5">
               <p role="alert">

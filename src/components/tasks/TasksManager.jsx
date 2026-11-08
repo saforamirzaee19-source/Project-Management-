@@ -8,6 +8,7 @@ import {
   updateTask,
 } from "../../services/tasks.js";
 import { getProjects } from "../../services/projects.js";
+import LoadingState from "../LoadingState.jsx";
 import TaskModal from "./TaskModal.jsx";
 
 function formatDate(value) {
@@ -162,9 +163,9 @@ function TasksManager() {
           {projectsQuery.error.message}
         </p>
       ) : tasksQuery.isPending || projectsQuery.isPending ? (
-        <p className="mt-5" role="status">
-          Loading tasks…
-        </p>
+        <div className="mt-5">
+          <LoadingState label="Loading tasks…" />
+        </div>
       ) : (
         <>
           {actionError && (

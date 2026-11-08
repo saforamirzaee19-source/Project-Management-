@@ -7,6 +7,7 @@ import {
   updateProject,
 } from "../../services/projects.js";
 import useCurrentUserId from "../../contexts/useCurrentUserId.js";
+import LoadingState from "../LoadingState.jsx";
 import ProjectModal from "./ProjectModal.jsx";
 
 function formatUserId(value, currentUserId) {
@@ -165,9 +166,9 @@ function ProjectsManager() {
             </button>
           </div>
         ) : projectsQuery.isPending ? (
-          <p className="mt-5" role="status">
-            Loading projects…
-          </p>
+          <div className="mt-5">
+            <LoadingState label="Loading projects…" />
+          </div>
         ) : (
           <>
             {actionError && (
