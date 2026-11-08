@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   createProject,
   deleteProject,
@@ -207,9 +208,12 @@ function ProjectsManager() {
                   {projects.map((project) => (
                     <tr key={project.id}>
                       <th className="px-3 py-4 font-medium" scope="row">
-                        <p className="font-semibold">
+                        <Link
+                          className="font-semibold underline decoration-[#6B352A]/30 underline-offset-4 hover:decoration-[#6B352A]"
+                          to={`/project/${encodeURIComponent(String(project.id))}`}
+                        >
                           {project.title || project.name}
-                        </p>
+                        </Link>
                         {project.description && (
                           <p className="mt-1 max-w-md truncate font-normal text-[#6B352A]/70">
                             {project.description}

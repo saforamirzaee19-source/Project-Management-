@@ -28,6 +28,8 @@ JSON Server running at `http://localhost:3001/tasks`. The sample data is in
 Query. A browser-specific user ID is generated once and saved in local storage;
 new projects use it for both `owner` and `createdBy`.
 Project, task, and sign-in form inputs are validated with Zod before submission.
+Open a project from the projects page to view its details and related tasks at
+`/project/:id`.
 
 This local user ID is only a demo identity, not authentication. Clearing the
 browser's local storage creates a new ID.

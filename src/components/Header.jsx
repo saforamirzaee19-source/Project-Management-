@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
 
 function Header({ page = "home" }) {
-  const isWorkspacePage = ["dashboard", "projects", "tasks"].includes(page);
+  const isWorkspacePage = ["dashboard", "projects", "project", "tasks"].includes(
+    page,
+  );
   const headerClass =
     isWorkspacePage
       ? "sticky top-0 z-30 flex flex-wrap items-center justify-between gap-4 border-b border-[#6B352A]/15 bg-white px-6 py-5"
@@ -18,9 +20,11 @@ function Header({ page = "home" }) {
           <h1 className="order-3 w-full text-xl font-bold sm:order-none sm:w-auto">
             {page === "projects"
               ? "Projects"
-              : page === "tasks"
-                ? "My tasks"
-                : "Dashboard"}
+              : page === "project"
+                ? "Project details"
+                : page === "tasks"
+                  ? "My tasks"
+                  : "Dashboard"}
           </h1>
           <div className="flex items-center gap-3">
             <span className="hidden text-sm sm:inline">Welcome, Ahmad</span>
