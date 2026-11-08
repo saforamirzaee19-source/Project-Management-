@@ -1,4 +1,9 @@
 import { useEffect, useState } from "react";
+import FormFieldError from "../FormFieldError.jsx";
+import {
+  createTaskFormSchema,
+  getFieldErrors,
+} from "../../validation/forms.js";
 
 const emptyTask = {
   title: "",
@@ -23,6 +28,7 @@ function TaskModal({ task, tasks, projects, saving, error, onClose, onSave }) {
         }
       : emptyTask,
   );
+  const [fieldErrors, setFieldErrors] = useState({});
 
   useEffect(() => {
     function handleKeyDown(event) {
@@ -38,19 +44,25 @@ function TaskModal({ task, tasks, projects, saving, error, onClose, onSave }) {
   function handleChange(event) {
     const { name, value } = event.target;
     setForm((current) => ({ ...current, [name]: value }));
+    setFieldErrors((current) => {
+      const next = { ...current };
+      delete next[name];
+      return next;
+    });
   }
 
   function handleSubmit(event) {
     event.preventDefault();
-    onSave({
-      title: form.title.trim(),
-      priority: form.priority,
-      status: form.status,
-      assignee: form.assignee.trim(),
-      projectId: form.projectId,
-      parentId: form.parentId,
-      dueDate: form.dueDate,
-    });
+    const result = createTaskFormSchema(projects, tasks, task?.id).safeParse(
+      form,
+    );
+    if (!result.success) {
+      setFieldErrors(getFieldErrors(result.error.issues));
+      return;
+    }
+
+    setFieldErrors({});
+    onSave(result.data);
   }
 
   const parentTasks = tasks.filter((candidate) => candidate.id !== task?.id);
@@ -73,7 +85,7 @@ function TaskModal({ task, tasks, projects, saving, error, onClose, onSave }) {
         <h2 className="text-2xl font-bold" id="task-modal-title">
           {task ? "Edit task" : "Create task"}
         </h2>
-        <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+        <form className="mt-6 space-y-4" noValidate onSubmit={handleSubmit}>
           <label className="block text-sm font-semibold">
             Task title
             <input
@@ -82,9 +94,13 @@ function TaskModal({ task, tasks, projects, saving, error, onClose, onSave }) {
               maxLength={150}
               name="title"
               onChange={handleChange}
-              required
+              aria-describedby={
+                fieldErrors.title ? "task-title-error" : undefined
+              }
+              aria-invalid={Boolean(fieldErrors.title)}
               value={form.title}
             />
+            <FormFieldError id="task-title-error" message={fieldErrors.title} />
           </label>
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -94,12 +110,20 @@ function TaskModal({ task, tasks, projects, saving, error, onClose, onSave }) {
                 className="mt-2 w-full rounded-xl border border-[#6B352A]/30 bg-white px-4 py-3 font-normal outline-none focus:border-[#6B352A]"
                 name="priority"
                 onChange={handleChange}
+                aria-describedby={
+                  fieldErrors.priority ? "task-priority-error" : undefined
+                }
+                aria-invalid={Boolean(fieldErrors.priority)}
                 value={form.priority}
               >
                 <option>Low</option>
                 <option>Medium</option>
                 <option>High</option>
               </select>
+              <FormFieldError
+                id="task-priority-error"
+                message={fieldErrors.priority}
+              />
             </label>
             <label className="block text-sm font-semibold">
               Status
@@ -107,12 +131,20 @@ function TaskModal({ task, tasks, projects, saving, error, onClose, onSave }) {
                 className="mt-2 w-full rounded-xl border border-[#6B352A]/30 bg-white px-4 py-3 font-normal outline-none focus:border-[#6B352A]"
                 name="status"
                 onChange={handleChange}
+                aria-describedby={
+                  fieldErrors.status ? "task-status-error" : undefined
+                }
+                aria-invalid={Boolean(fieldErrors.status)}
                 value={form.status}
               >
                 <option>Up next</option>
                 <option>In progress</option>
                 <option>Completed</option>
               </select>
+              <FormFieldError
+                id="task-status-error"
+                message={fieldErrors.status}
+              />
             </label>
           </div>
 
@@ -123,8 +155,16 @@ function TaskModal({ task, tasks, projects, saving, error, onClose, onSave }) {
                 className="mt-2 w-full rounded-xl border border-[#6B352A]/30 px-4 py-3 font-normal outline-none focus:border-[#6B352A]"
                 name="assignee"
                 onChange={handleChange}
+                aria-describedby={
+                  fieldErrors.assignee ? "task-assignee-error" : undefined
+                }
+                aria-invalid={Boolean(fieldErrors.assignee)}
                 placeholder="Optional user ID"
                 value={form.assignee}
+              />
+              <FormFieldError
+                id="task-assignee-error"
+                message={fieldErrors.assignee}
               />
             </label>
             <label className="block text-sm font-semibold">
@@ -133,6 +173,10 @@ function TaskModal({ task, tasks, projects, saving, error, onClose, onSave }) {
                 className="mt-2 w-full rounded-xl border border-[#6B352A]/30 bg-white px-4 py-3 font-normal outline-none focus:border-[#6B352A]"
                 name="projectId"
                 onChange={handleChange}
+                aria-describedby={
+                  fieldErrors.projectId ? "task-project-error" : undefined
+                }
+                aria-invalid={Boolean(fieldErrors.projectId)}
                 value={form.projectId}
               >
                 <option value="">No project</option>
@@ -142,6 +186,10 @@ function TaskModal({ task, tasks, projects, saving, error, onClose, onSave }) {
                   </option>
                 ))}
               </select>
+              <FormFieldError
+                id="task-project-error"
+                message={fieldErrors.projectId}
+              />
             </label>
           </div>
 
@@ -152,6 +200,10 @@ function TaskModal({ task, tasks, projects, saving, error, onClose, onSave }) {
                 className="mt-2 w-full rounded-xl border border-[#6B352A]/30 bg-white px-4 py-3 font-normal outline-none focus:border-[#6B352A]"
                 name="parentId"
                 onChange={handleChange}
+                aria-describedby={
+                  fieldErrors.parentId ? "task-parent-error" : undefined
+                }
+                aria-invalid={Boolean(fieldErrors.parentId)}
                 value={form.parentId}
               >
                 <option value="">No parent</option>
@@ -161,6 +213,10 @@ function TaskModal({ task, tasks, projects, saving, error, onClose, onSave }) {
                   </option>
                 ))}
               </select>
+              <FormFieldError
+                id="task-parent-error"
+                message={fieldErrors.parentId}
+              />
             </label>
             <label className="block text-sm font-semibold">
               Due date
@@ -169,7 +225,15 @@ function TaskModal({ task, tasks, projects, saving, error, onClose, onSave }) {
                 name="dueDate"
                 onChange={handleChange}
                 type="date"
+                aria-describedby={
+                  fieldErrors.dueDate ? "task-due-date-error" : undefined
+                }
+                aria-invalid={Boolean(fieldErrors.dueDate)}
                 value={form.dueDate}
+              />
+              <FormFieldError
+                id="task-due-date-error"
+                message={fieldErrors.dueDate}
               />
             </label>
           </div>

@@ -1,12 +1,37 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import FormFieldError from "../components/FormFieldError.jsx";
 import Header from "../components/Header.jsx";
+import { getFieldErrors, signInFormSchema } from "../validation/forms.js";
 
 function SignIn() {
   const navigate = useNavigate();
+  const [fieldErrors, setFieldErrors] = useState({});
 
   function handleSubmit(event) {
     event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const result = signInFormSchema.safeParse({
+      email: formData.get("email"),
+      password: formData.get("password"),
+    });
+
+    if (!result.success) {
+      setFieldErrors(getFieldErrors(result.error.issues));
+      return;
+    }
+
+    setFieldErrors({});
     navigate("/dashboard");
+  }
+
+  function handleChange(event) {
+    const { name } = event.target;
+    setFieldErrors((current) => {
+      const next = { ...current };
+      delete next[name];
+      return next;
+    });
   }
 
   return (
@@ -25,7 +50,7 @@ function SignIn() {
             Enter your details below to continue.
           </p>
 
-          <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
+          <form className="mt-8 space-y-5" noValidate onSubmit={handleSubmit}>
             <label className="block text-sm font-semibold">
               Email address
               <input
@@ -33,8 +58,16 @@ function SignIn() {
                 type="email"
                 name="email"
                 autoComplete="email"
+                onChange={handleChange}
                 placeholder="you@example.com"
-                required
+                aria-describedby={
+                  fieldErrors.email ? "signin-email-error" : undefined
+                }
+                aria-invalid={Boolean(fieldErrors.email)}
+              />
+              <FormFieldError
+                id="signin-email-error"
+                message={fieldErrors.email}
               />
             </label>
 
@@ -45,14 +78,20 @@ function SignIn() {
                 type="password"
                 name="password"
                 autoComplete="current-password"
+                onChange={handleChange}
                 placeholder="Your password"
-                minLength={8}
-                pattern="(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).*"
-                title="Use at least 8 characters, including one uppercase letter, one number, and one symbol."
-                aria-describedby="password-help"
-                required
+                aria-describedby={
+                  fieldErrors.password
+                    ? "signin-password-error"
+                    : "password-help"
+                }
+                aria-invalid={Boolean(fieldErrors.password)}
               />
             </label>
+            <FormFieldError
+              id="signin-password-error"
+              message={fieldErrors.password}
+            />
             <p id="password-help" className="-mt-3 text-xs">
               At least 8 characters, with an uppercase letter, a number, and a
               symbol.

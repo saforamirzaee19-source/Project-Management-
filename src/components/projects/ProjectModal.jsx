@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import FormFieldError from "../FormFieldError.jsx";
+import { getFieldErrors, projectFormSchema } from "../../validation/forms.js";
 
 const emptyProject = {
   title: "",
@@ -14,10 +16,14 @@ function ProjectModal({ project, saving, error, onClose, onSave }) {
       ? {
           ...project,
           title: project.title || project.name || "",
+          description: project.description || "",
+          status: project.status || "Planning",
+          dueDate: project.dueDate || "",
           members: (project.members || []).join(", "),
         }
       : emptyProject,
   );
+  const [fieldErrors, setFieldErrors] = useState({});
 
   useEffect(() => {
     function handleKeyDown(event) {
@@ -33,20 +39,23 @@ function ProjectModal({ project, saving, error, onClose, onSave }) {
   function handleChange(event) {
     const { name, value } = event.target;
     setForm((current) => ({ ...current, [name]: value }));
+    setFieldErrors((current) => {
+      const next = { ...current };
+      delete next[name];
+      return next;
+    });
   }
 
   function handleSubmit(event) {
     event.preventDefault();
-    onSave({
-      title: form.title.trim(),
-      description: form.description.trim(),
-      status: form.status,
-      dueDate: form.dueDate,
-      members: form.members
-        .split(",")
-        .map((member) => member.trim())
-        .filter(Boolean),
-    });
+    const result = projectFormSchema.safeParse(form);
+    if (!result.success) {
+      setFieldErrors(getFieldErrors(result.error.issues));
+      return;
+    }
+
+    setFieldErrors({});
+    onSave(result.data);
   }
 
   return (
@@ -67,7 +76,7 @@ function ProjectModal({ project, saving, error, onClose, onSave }) {
         <h2 className="text-2xl font-bold" id="project-modal-title">
           {project ? "Edit project" : "Create project"}
         </h2>
-        <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+        <form className="mt-6 space-y-4" noValidate onSubmit={handleSubmit}>
           <label className="block text-sm font-semibold">
             Project title
             <input
@@ -76,8 +85,15 @@ function ProjectModal({ project, saving, error, onClose, onSave }) {
               maxLength={100}
               name="title"
               onChange={handleChange}
-              required
+              aria-describedby={
+                fieldErrors.title ? "project-title-error" : undefined
+              }
+              aria-invalid={Boolean(fieldErrors.title)}
               value={form.title}
+            />
+            <FormFieldError
+              id="project-title-error"
+              message={fieldErrors.title}
             />
           </label>
 
@@ -88,8 +104,18 @@ function ProjectModal({ project, saving, error, onClose, onSave }) {
               maxLength={500}
               name="description"
               onChange={handleChange}
+              aria-describedby={
+                fieldErrors.description
+                  ? "project-description-error"
+                  : undefined
+              }
+              aria-invalid={Boolean(fieldErrors.description)}
               rows={3}
               value={form.description}
+            />
+            <FormFieldError
+              id="project-description-error"
+              message={fieldErrors.description}
             />
           </label>
 
@@ -99,8 +125,16 @@ function ProjectModal({ project, saving, error, onClose, onSave }) {
               className="mt-2 w-full rounded-xl border border-[#6B352A]/30 px-4 py-3 font-normal outline-none focus:border-[#6B352A]"
               name="members"
               onChange={handleChange}
+              aria-describedby={
+                fieldErrors.members ? "project-members-error" : undefined
+              }
+              aria-invalid={Boolean(fieldErrors.members)}
               placeholder="user-id-1, user-id-2"
               value={form.members}
+            />
+            <FormFieldError
+              id="project-members-error"
+              message={fieldErrors.members}
             />
           </label>
 
@@ -111,12 +145,20 @@ function ProjectModal({ project, saving, error, onClose, onSave }) {
                 className="mt-2 w-full rounded-xl border border-[#6B352A]/30 bg-white px-4 py-3 font-normal outline-none focus:border-[#6B352A]"
                 name="status"
                 onChange={handleChange}
+                aria-describedby={
+                  fieldErrors.status ? "project-status-error" : undefined
+                }
+                aria-invalid={Boolean(fieldErrors.status)}
                 value={form.status}
               >
                 <option>Planning</option>
                 <option>In progress</option>
                 <option>Completed</option>
               </select>
+              <FormFieldError
+                id="project-status-error"
+                message={fieldErrors.status}
+              />
             </label>
 
             <label className="block text-sm font-semibold">
@@ -126,7 +168,15 @@ function ProjectModal({ project, saving, error, onClose, onSave }) {
                 name="dueDate"
                 onChange={handleChange}
                 type="date"
+                aria-describedby={
+                  fieldErrors.dueDate ? "project-due-date-error" : undefined
+                }
+                aria-invalid={Boolean(fieldErrors.dueDate)}
                 value={form.dueDate}
+              />
+              <FormFieldError
+                id="project-due-date-error"
+                message={fieldErrors.dueDate}
               />
             </label>
           </div>
