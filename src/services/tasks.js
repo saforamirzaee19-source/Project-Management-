@@ -26,6 +26,7 @@ export async function getTasks(signal) {
 }
 
 export function createTask(task) {
+  assertProjectId(task);
   return request("/api/tasks", {
     method: "POST",
     body: JSON.stringify(task),
@@ -33,10 +34,17 @@ export function createTask(task) {
 }
 
 export function updateTask(id, task) {
+  assertProjectId(task);
   return request(`/api/tasks/${encodeURIComponent(id)}`, {
     method: "PUT",
     body: JSON.stringify(task),
   });
+}
+
+function assertProjectId(task) {
+  if (!task || String(task.projectId ?? "").trim() === "") {
+    throw new Error("A task must belong to a project.");
+  }
 }
 
 export function deleteTask(id) {
