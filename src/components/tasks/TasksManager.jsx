@@ -28,9 +28,11 @@ function formatUserId(value, currentUserId) {
   return value === currentUserId ? "You" : `${value.slice(0, 12)}…`;
 }
 
-function TasksManager() {
+function TasksManager({ projectId }) {
   const queryClient = useQueryClient();
   const userId = useCurrentUserId();
+  const scopedProjectId =
+    projectId === undefined ? undefined : String(projectId);
   const tasksQuery = useQuery({
     queryKey: ["tasks"],
     queryFn: ({ signal }) => getTasks(signal),
@@ -39,7 +41,10 @@ function TasksManager() {
     queryKey: ["projects"],
     queryFn: ({ signal }) => getProjects(signal),
   });
-  const tasks = tasksQuery.data ?? [];
+  const allTasks = tasksQuery.data ?? [];
+  const tasks = scopedProjectId
+    ? allTasks.filter((task) => String(task.projectId) === scopedProjectId)
+    : allTasks;
   const projects = projectsQuery.data ?? [];
   const [modalTask, setModalTask] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -81,18 +86,22 @@ function TasksManager() {
   async function handleSave(taskData) {
     setModalError("");
     const now = new Date().toISOString();
+    const savedTaskData =
+      scopedProjectId === undefined
+        ? taskData
+        : { ...taskData, projectId: scopedProjectId };
 
     try {
       if (modalTask) {
         await updateMutation.mutateAsync({
           id: modalTask.id,
           task: {
-            ...taskData,
+            ...savedTaskData,
             createdBy: modalTask.createdBy || userId,
             createdAt: modalTask.createdAt || now,
             updatedAt: now,
             completedAt:
-              taskData.status === "Completed"
+              savedTaskData.status === "Completed"
                 ? modalTask.completedAt ||
                   (modalTask.status !== "Completed" ? now : undefined)
                 : undefined,
@@ -100,11 +109,12 @@ function TasksManager() {
         });
       } else {
         await createMutation.mutateAsync({
-          ...taskData,
+          ...savedTaskData,
           createdBy: userId,
           createdAt: now,
           updatedAt: now,
-          completedAt: taskData.status === "Completed" ? now : undefined,
+          completedAt:
+            savedTaskData.status === "Completed" ? now : undefined,
         });
       }
 
@@ -134,8 +144,14 @@ function TasksManager() {
     >
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold">Tasks</h2>
-          <p className="mt-1 text-sm">Create and manage project tasks.</p>
+          <h2 className="text-lg font-bold">
+            {scopedProjectId === undefined ? "Tasks" : "Project tasks"}
+          </h2>
+          <p className="mt-1 text-sm">
+            {scopedProjectId === undefined
+              ? "Create and manage project tasks."
+              : "Create and manage tasks for this project."}
+          </p>
         </div>
         <button
           className="rounded-full bg-[#6B352A] px-5 py-2 font-semibold text-[#FFF1A6]"
@@ -204,10 +220,10 @@ function TasksManager() {
               <tbody className="divide-y divide-[#6B352A]/10">
                 {tasks.map((task) => {
                   const project = projects.find(
-                    (item) => item.id === task.projectId,
+                    (item) => String(item.id) === String(task.projectId),
                   );
                   const parentTask = tasks.find(
-                    (item) => item.id === task.parentId,
+                    (item) => String(item.id) === String(task.parentId),
                   );
 
                   return (
@@ -279,9 +295,10 @@ function TasksManager() {
           onClose={closeModal}
           onSave={handleSave}
           projects={projects}
+          projectId={scopedProjectId}
           saving={saving}
           task={modalTask}
-          tasks={tasks}
+          tasks={allTasks}
         />
       )}
     </section>

@@ -15,18 +15,29 @@ const emptyTask = {
   dueDate: "",
 };
 
-function TaskModal({ task, tasks, projects, saving, error, onClose, onSave }) {
+function TaskModal({
+  task,
+  tasks,
+  projects,
+  projectId,
+  saving,
+  error,
+  onClose,
+  onSave,
+}) {
+  const fixedProjectId =
+    projectId === undefined ? undefined : String(projectId);
   const [form, setForm] = useState(() =>
     task
       ? {
           ...emptyTask,
           ...task,
           assignee: task.assignee || "",
-          projectId: task.projectId || "",
+          projectId: fixedProjectId ?? task.projectId ?? "",
           parentId: task.parentId || "",
           dueDate: task.dueDate || "",
         }
-      : emptyTask,
+      : { ...emptyTask, projectId: fixedProjectId ?? "" },
   );
   const [fieldErrors, setFieldErrors] = useState({});
 
@@ -62,10 +73,22 @@ function TaskModal({ task, tasks, projects, saving, error, onClose, onSave }) {
     }
 
     setFieldErrors({});
-    onSave(result.data);
+    onSave(
+      fixedProjectId === undefined
+        ? result.data
+        : { ...result.data, projectId: fixedProjectId },
+    );
   }
 
-  const parentTasks = tasks.filter((candidate) => candidate.id !== task?.id);
+  const parentTasks = tasks.filter(
+    (candidate) =>
+      String(candidate.id) !== String(task?.id) &&
+      (fixedProjectId === undefined ||
+        String(candidate.projectId) === fixedProjectId),
+  );
+  const fixedProject = projects.find(
+    (project) => String(project.id) === fixedProjectId,
+  );
 
   return (
     <div
@@ -169,27 +192,39 @@ function TaskModal({ task, tasks, projects, saving, error, onClose, onSave }) {
             </label>
             <label className="block text-sm font-semibold">
               Project
-              <select
-                className="mt-2 w-full rounded-xl border border-[#6B352A]/30 bg-white px-4 py-3 font-normal outline-none focus:border-[#6B352A]"
-                name="projectId"
-                onChange={handleChange}
-                aria-describedby={
-                  fieldErrors.projectId ? "task-project-error" : undefined
-                }
-                aria-invalid={Boolean(fieldErrors.projectId)}
-                value={form.projectId}
-              >
-                <option value="">No project</option>
-                {projects.map((project) => (
-                  <option key={project.id} value={project.id}>
-                    {project.title || project.name || `Project ${project.id}`}
-                  </option>
-                ))}
-              </select>
-              <FormFieldError
-                id="task-project-error"
-                message={fieldErrors.projectId}
-              />
+              {fixedProjectId === undefined ? (
+                <>
+                  <select
+                    className="mt-2 w-full rounded-xl border border-[#6B352A]/30 bg-white px-4 py-3 font-normal outline-none focus:border-[#6B352A]"
+                    name="projectId"
+                    onChange={handleChange}
+                    aria-describedby={
+                      fieldErrors.projectId ? "task-project-error" : undefined
+                    }
+                    aria-invalid={Boolean(fieldErrors.projectId)}
+                    value={form.projectId}
+                  >
+                    <option value="">No project</option>
+                    {projects.map((project) => (
+                      <option key={project.id} value={project.id}>
+                        {project.title ||
+                          project.name ||
+                          `Project ${project.id}`}
+                      </option>
+                    ))}
+                  </select>
+                  <FormFieldError
+                    id="task-project-error"
+                    message={fieldErrors.projectId}
+                  />
+                </>
+              ) : (
+                <p className="mt-2 rounded-xl border border-[#6B352A]/15 bg-[#FFFDF5] px-4 py-3 font-normal">
+                  {fixedProject?.title ||
+                    fixedProject?.name ||
+                    `Project ${fixedProjectId}`}
+                </p>
+              )}
             </label>
           </div>
 

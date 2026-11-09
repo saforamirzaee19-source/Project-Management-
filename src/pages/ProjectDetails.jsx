@@ -3,8 +3,8 @@ import { Link, useParams } from "react-router-dom";
 import Header from "../components/Header.jsx";
 import LoadingState from "../components/LoadingState.jsx";
 import Sidebar from "../components/Sidebar.jsx";
+import TasksManager from "../components/tasks/TasksManager.jsx";
 import { getProjects } from "../services/projects.js";
-import { getTasks } from "../services/tasks.js";
 
 function formatDate(value) {
   if (!value) {
@@ -21,34 +21,20 @@ function ProjectDetails() {
     queryKey: ["projects"],
     queryFn: ({ signal }) => getProjects(signal),
   });
-  const tasksQuery = useQuery({
-    queryKey: ["tasks"],
-    queryFn: ({ signal }) => getTasks(signal),
-  });
 
   const project = projectsQuery.data?.find(
     (candidate) => String(candidate.id) === id,
   );
-  const projectTasks = project
-    ? (tasksQuery.data ?? []).filter(
-        (task) => String(task.projectId) === String(project.id),
-      )
-    : [];
 
   let content;
-  if (projectsQuery.isPending || tasksQuery.isPending) {
+  if (projectsQuery.isPending) {
     content = <LoadingState label="Loading project details…" />;
-  } else if (projectsQuery.isError || tasksQuery.isError) {
+  } else if (projectsQuery.isError) {
     content = (
       <div className="rounded-2xl border border-red-300 bg-white p-5">
         {projectsQuery.isError && (
           <p role="alert">
             Couldn’t load projects: {projectsQuery.error.message}
-          </p>
-        )}
-        {tasksQuery.isError && (
-          <p role="alert">
-            Couldn’t load tasks: {tasksQuery.error.message}
           </p>
         )}
         <div className="mt-4 flex gap-4">
@@ -59,15 +45,6 @@ function ProjectDetails() {
               type="button"
             >
               Retry projects
-            </button>
-          )}
-          {tasksQuery.isError && (
-            <button
-              className="font-semibold underline underline-offset-2"
-              onClick={() => tasksQuery.refetch()}
-              type="button"
-            >
-              Retry tasks
             </button>
           )}
         </div>
@@ -109,54 +86,7 @@ function ProjectDetails() {
           </p>
         </section>
 
-        <section className="mt-6 rounded-2xl border border-[#6B352A]/15 bg-white p-5 md:p-6">
-          <div className="flex flex-wrap items-baseline justify-between gap-3">
-            <h2 className="text-lg font-bold">Project tasks</h2>
-            <p className="text-sm">
-              {projectTasks.length}{" "}
-              {projectTasks.length === 1 ? "task" : "tasks"}
-            </p>
-          </div>
-
-          {projectTasks.length === 0 ? (
-            <p className="mt-5">No tasks are assigned to this project yet.</p>
-          ) : (
-            <div className="mt-4 overflow-x-auto">
-              <table className="w-full min-w-[560px] border-collapse text-left text-sm">
-                <thead>
-                  <tr className="border-b border-[#6B352A]/15 text-[#6B352A]/70">
-                    <th className="px-3 py-3 font-semibold" scope="col">
-                      Task
-                    </th>
-                    <th className="px-3 py-3 font-semibold" scope="col">
-                      Priority
-                    </th>
-                    <th className="px-3 py-3 font-semibold" scope="col">
-                      Status
-                    </th>
-                    <th className="px-3 py-3 font-semibold" scope="col">
-                      Due date
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#6B352A]/10">
-                  {projectTasks.map((task) => (
-                    <tr key={task.id}>
-                      <th className="px-3 py-4 font-semibold" scope="row">
-                        {task.title}
-                      </th>
-                      <td className="px-3 py-4">{task.priority || "—"}</td>
-                      <td className="px-3 py-4">{task.status || "—"}</td>
-                      <td className="whitespace-nowrap px-3 py-4">
-                        {formatDate(task.dueDate)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </section>
+        <TasksManager projectId={project.id} />
       </>
     );
   }
