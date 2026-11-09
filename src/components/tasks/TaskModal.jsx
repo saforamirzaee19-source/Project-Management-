@@ -204,7 +204,9 @@ function TaskModal({
                     aria-invalid={Boolean(fieldErrors.projectId)}
                     value={form.projectId}
                   >
-                    <option value="">No project</option>
+                    <option disabled value="">
+                      Choose a project
+                    </option>
                     {projects.map((project) => (
                       <option key={project.id} value={project.id}>
                         {project.title ||

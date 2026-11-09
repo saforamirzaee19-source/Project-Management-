@@ -27,7 +27,7 @@ export const projectFormSchema = z.object({
 });
 
 export function createTaskFormSchema(projects, tasks, currentTaskId) {
-  const projectIds = new Set(projects.map((project) => project.id));
+  const projectIds = new Set(projects.map((project) => String(project.id)));
   const parentTaskIds = new Set(
     tasks.filter((task) => task.id !== currentTaskId).map((task) => task.id),
   );
@@ -42,12 +42,12 @@ export function createTaskFormSchema(projects, tasks, currentTaskId) {
       priority: z.enum(["Low", "Medium", "High"]),
       status: z.enum(["Up next", "In progress", "Completed"]),
       assignee: z.string().trim(),
-      projectId: z.string(),
+      projectId: z.string().trim().min(1, "Choose a project."),
       parentId: z.string(),
       dueDate: dueDateSchema,
     })
     .superRefine((task, context) => {
-      if (task.projectId && !projectIds.has(task.projectId)) {
+      if (!projectIds.has(task.projectId)) {
         context.addIssue({
           code: "custom",
           message: "Choose an available project.",

@@ -199,28 +199,31 @@
       "id": "2"
     },
     {
-      "id": "3",
       "title": "Customer research",
       "description": "Summarize interviews and share findings with the product team.",
       "status": "Completed",
       "dueDate": "2026-10-28",
+      "members": [
+        "owner"
+      ],
       "owner": "user-1",
-      "members": [],
       "createdAt": "2026-10-20T09:00:00.000Z",
-      "updatedAt": "2026-10-28T09:00:00.000Z",
-      "completedAt": "2026-10-28T09:00:00.000Z"
+      "updatedAt": "2026-11-09T05:48:24.782Z",
+      "completedAt": "2026-10-28T09:00:00.000Z",
+      "id": "3"
     },
     {
       "title": "Organize design references",
       "description": "Organizing design can be helpful to improve our team and have more powerful achievement.",
-      "status": "Completed",
+      "status": "In progress",
       "dueDate": "2026-11-06",
+      "members": [
+        "user-1"
+      ],
       "owner": "user-1",
-      "id": "jlL36Cm-UAc",
-      "members": [],
       "createdAt": "2026-10-22T09:00:00.000Z",
-      "updatedAt": "2026-11-01T09:00:00.000Z",
-      "completedAt": "2026-11-01T09:00:00.000Z"
+      "updatedAt": "2026-11-09T05:48:07.039Z",
+      "id": "jlL36Cm-UAc"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
