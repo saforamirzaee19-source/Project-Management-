@@ -1,8 +1,12 @@
 import { useState } from "react";
 import { AuthContext } from "./authContext.js";
+import {
+  authenticateAccount,
+  registerAccount,
+  updateAccount as saveAccountUpdates,
+} from "../services/auth.js";
 
 const SESSION_STORAGE_KEY = "forma.authSession";
-const USER_ID_STORAGE_KEY = "forma.userId";
 
 function readSession() {
   const savedSession = window.localStorage.getItem(SESSION_STORAGE_KEY);
@@ -14,8 +18,10 @@ function readSession() {
     const session = JSON.parse(savedSession);
     if (
       session &&
+      session.version === 1 &&
       typeof session.email === "string" &&
-      typeof session.userId === "string"
+      typeof session.userId === "string" &&
+      typeof session.displayName === "string"
     ) {
       return session;
     }
@@ -27,29 +33,33 @@ function readSession() {
   return null;
 }
 
-function getUserId() {
-  const savedUserId = window.localStorage.getItem(USER_ID_STORAGE_KEY);
-  if (savedUserId) {
-    return savedUserId;
-  }
-
-  const userId = `user-${window.crypto.randomUUID()}`;
-  window.localStorage.setItem(USER_ID_STORAGE_KEY, userId);
-  return userId;
+function persistSession(account) {
+  const nextSession = { ...account, version: 1 };
+  window.localStorage.setItem(
+    SESSION_STORAGE_KEY,
+    JSON.stringify(nextSession),
+  );
+  return nextSession;
 }
 
 function AuthProvider({ children }) {
   const [session, setSession] = useState(readSession);
 
-  function signIn(email) {
-    const nextSession = {
-      email: email.trim().toLowerCase(),
-      userId: getUserId(),
-    };
-    window.localStorage.setItem(
-      SESSION_STORAGE_KEY,
-      JSON.stringify(nextSession),
-    );
+  async function signIn(email, password) {
+    const account = await authenticateAccount(email, password);
+    const nextSession = persistSession(account);
+    setSession(nextSession);
+  }
+
+  async function createAccount(details) {
+    const account = await registerAccount(details);
+    const nextSession = persistSession(account);
+    setSession(nextSession);
+  }
+
+  async function updateAccount(details) {
+    const account = await saveAccountUpdates(session.userId, details);
+    const nextSession = persistSession(account);
     setSession(nextSession);
   }
 
@@ -59,10 +69,13 @@ function AuthProvider({ children }) {
   }
 
   const value = {
+    displayName: session?.displayName ?? null,
     email: session?.email ?? null,
     isAuthenticated: Boolean(session),
+    createAccount,
     signIn,
     signOut,
+    updateAccount,
     userId: session?.userId ?? null,
   };
 

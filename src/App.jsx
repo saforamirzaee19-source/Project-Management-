@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import useAuth from "./contexts/useAuth.js";
+import Account from "./pages/Account.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Home from "./pages/Home.jsx";
 import ProjectDetails from "./pages/ProjectDetails.jsx";
@@ -58,6 +59,14 @@ function App() {
         element={
           <RequireAuth>
             <ProjectDetails />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/account"
+        element={
+          <RequireAuth>
+            <Account />
           </RequireAuth>
         }
       />

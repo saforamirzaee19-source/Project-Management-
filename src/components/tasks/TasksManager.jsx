@@ -48,22 +48,19 @@ function TasksManager({ projectId }) {
     ? allTasks.filter((task) => String(task.projectId) === scopedProjectId)
     : allTasks;
   const projects = projectsQuery.data ?? [];
+  const projectById = new Map(
+    projects.map((project) => [String(project.id), project]),
+  );
+  const taskById = new Map(tasks.map((task) => [String(task.id), task]));
   const [filter, setFilter] = useState("");
   const debouncedFilter = useDebouncedValue(filter);
   const normalizedFilter = debouncedFilter.trim().toLocaleLowerCase();
   const filteredTasks = normalizedFilter
     ? tasks.filter((task) => {
-        const project = projects.find(
-          (item) => String(item.id) === String(task.projectId),
-        );
-        const parentTask = tasks.find(
-          (item) => String(item.id) === String(task.parentId),
-        );
+        const project = projectById.get(String(task.projectId));
+        const parentTask = taskById.get(String(task.parentId));
 
-        return matchesFilter(
-          [task, project, parentTask],
-          normalizedFilter,
-        );
+        return matchesFilter([task, project, parentTask], normalizedFilter);
       })
     : tasks;
   const groupedTasksByProject = new Map();
@@ -71,9 +68,7 @@ function TasksManager({ projectId }) {
     const projectKey = String(task.projectId ?? "");
     let group = groupedTasksByProject.get(projectKey);
     if (!group) {
-      const project = projects.find(
-        (item) => String(item.id) === projectKey,
-      );
+      const project = projectById.get(projectKey);
       group = {
         key: projectKey,
         title: project
@@ -92,9 +87,7 @@ function TasksManager({ projectId }) {
       .map((project) => groupedTasksByProject.get(String(project.id)))
       .filter(Boolean),
     ...[...groupedTasksByProject.entries()]
-      .filter(([projectKey]) => !projects.some(
-        (project) => String(project.id) === projectKey,
-      ))
+      .filter(([projectKey]) => !projectById.has(projectKey))
       .map(([, group]) => group),
   ];
   const [modalTask, setModalTask] = useState(null);
@@ -176,22 +169,26 @@ function TasksManager({ projectId }) {
   }
 
   async function handleDelete(task) {
-    const childTasks = allTasks.filter(
-      (candidate) => String(candidate.parentId) === String(task.id),
-    );
-    if (childTasks.length > 0) {
-      setActionError(
-        `Couldn’t delete "${task.title}": delete or reassign its child tasks first.`,
-      );
-      return;
-    }
-
-    if (!window.confirm(`Delete "${task.title}"? This cannot be undone.`)) {
-      return;
-    }
-
     setActionError("");
     try {
+      const currentTasks = await queryClient.fetchQuery({
+        queryKey: ["tasks"],
+        queryFn: ({ signal }) => getTasks(signal),
+      });
+      const childTasks = currentTasks.filter(
+        (candidate) => String(candidate.parentId) === String(task.id),
+      );
+      if (childTasks.length > 0) {
+        setActionError(
+          `Couldn’t delete "${task.title}": delete or reassign its child tasks first.`,
+        );
+        return;
+      }
+
+      if (!window.confirm(`Delete "${task.title}"? This cannot be undone.`)) {
+        return;
+      }
+
       await deleteMutation.mutateAsync(task.id);
     } catch (error) {
       setActionError(`Couldn’t delete "${task.title}": ${error.message}`);
@@ -310,11 +307,11 @@ function TasksManager({ projectId }) {
                       </tr>
                     )}
                     {group.tasks.map((task) => {
-                      const project = projects.find(
-                        (item) => String(item.id) === String(task.projectId),
+                      const project = projectById.get(
+                        String(task.projectId),
                       );
-                      const parentTask = tasks.find(
-                        (item) => String(item.id) === String(task.parentId),
+                      const parentTask = taskById.get(
+                        String(task.parentId),
                       );
 
                       return (

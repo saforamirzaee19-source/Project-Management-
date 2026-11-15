@@ -2,11 +2,15 @@ import { Link } from "react-router-dom";
 import useAuth from "../contexts/useAuth.js";
 
 function Header({ page = "home" }) {
-  const { email, isAuthenticated, signOut } = useAuth();
-  const isWorkspacePage = ["dashboard", "projects", "project", "tasks"].includes(
-    page,
-  );
-  const displayName = email?.split("@")[0] || "there";
+  const { displayName: accountName, email, isAuthenticated, signOut } = useAuth();
+  const isWorkspacePage = [
+    "account",
+    "dashboard",
+    "projects",
+    "project",
+    "tasks",
+  ].includes(page);
+  const displayName = accountName || email?.split("@")[0] || "there";
   const headerClass =
     isWorkspacePage
       ? "sticky top-0 z-30 flex flex-wrap items-center justify-between gap-4 border-b border-[#6B352A]/15 bg-white px-6 py-5"
@@ -27,12 +31,20 @@ function Header({ page = "home" }) {
                 ? "Project details"
                 : page === "tasks"
                   ? "My tasks"
-                  : "Dashboard"}
+                    : page === "account"
+                      ? "Account"
+                      : "Dashboard"}
           </h1>
           <div className="flex items-center gap-3">
             <span className="hidden text-sm sm:inline">
-              Welcome, {displayName}
+                Welcome, {displayName}
             </span>
+            <Link
+                className="rounded-full border border-[#6B352A]/30 px-4 py-2 text-sm font-semibold transition hover:bg-[#FFF1A6]"
+                to="/account"
+            >
+                Account
+            </Link>
             <span className="flex size-10 items-center justify-center rounded-full bg-[#FFF1A6] font-bold">
               {displayName.charAt(0).toUpperCase()}
             </span>

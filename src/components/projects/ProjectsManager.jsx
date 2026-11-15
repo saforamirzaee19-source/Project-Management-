@@ -7,6 +7,7 @@ import {
   getProjects,
   updateProject,
 } from "../../services/projects.js";
+import { getTasks } from "../../services/tasks.js";
 import useCurrentUserId from "../../contexts/useCurrentUserId.js";
 import useDebouncedValue from "../../hooks/useDebouncedValue.js";
 import matchesFilter from "../../utils/matchesFilter.js";
@@ -127,13 +128,28 @@ function ProjectsManager() {
   }
 
   async function handleDelete(project) {
-    if (!window.confirm(`Delete "${project.title || project.name}"? This cannot be undone.`)) {
-      return;
-    }
-
     setActionError("");
 
     try {
+      const tasks = await queryClient.fetchQuery({
+        queryKey: ["tasks"],
+        queryFn: ({ signal }) => getTasks(signal),
+      });
+      const projectTasks = tasks.filter(
+        (task) => String(task.projectId) === String(project.id),
+      );
+
+      if (projectTasks.length > 0) {
+        setActionError(
+          `Couldn’t delete "${project.title || project.name}": delete or move its tasks first.`,
+        );
+        return;
+      }
+
+      if (!window.confirm(`Delete "${project.title || project.name}"? This cannot be undone.`)) {
+        return;
+      }
+
       await deleteMutation.mutateAsync(project.id);
     } catch (error) {
       setActionError(

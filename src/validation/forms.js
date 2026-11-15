@@ -73,18 +73,44 @@ export function createTaskFormSchema(projects, tasks, currentTaskId) {
     });
 }
 
+const emailSchema = z
+  .string()
+  .trim()
+  .pipe(z.email("Enter a valid email address."));
+const passwordSchema = z
+  .string()
+  .min(8, "Use at least 8 characters.")
+  .regex(
+    /(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])/,
+    "Include an uppercase letter, a number, and a symbol.",
+  );
+
+const displayNameSchema = z
+  .string()
+  .trim()
+  .min(1, "Enter your name.")
+  .max(80, "Use 80 characters or fewer.");
+
 export const signInFormSchema = z.object({
-  email: z
-    .string()
-    .trim()
-    .pipe(z.email("Enter a valid email address.")),
-  password: z
-    .string()
-    .min(8, "Use at least 8 characters.")
-    .regex(
-      /(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])/,
-      "Include an uppercase letter, a number, and a symbol.",
-    ),
+  email: emailSchema,
+  password: passwordSchema,
+});
+
+export const signUpFormSchema = z.object({
+  displayName: displayNameSchema,
+  email: emailSchema,
+  password: passwordSchema,
+});
+
+export const accountUpdateFormSchema = z.object({
+  displayName: displayNameSchema,
+  email: emailSchema,
+  currentPassword: z.string().min(1, "Enter your current password."),
+  newPassword: z.string().refine(
+    (password) =>
+      password === "" || passwordSchema.safeParse(password).success,
+    "Use at least 8 characters, including an uppercase letter, a number, and a symbol.",
+  ),
 });
 
 export function getFieldErrors(issues) {

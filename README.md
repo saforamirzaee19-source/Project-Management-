@@ -16,23 +16,22 @@ Start the app and mock API together:
 npm run dev
 ```
 
-The dashboard fetches tasks from `/api/tasks`. Vite proxies that request to the
-JSON Server running at `http://localhost:3001/tasks`. The development command
+The app fetches project and task data from the JSON Server running at
+`http://localhost:3001`. Vite proxies API requests, and the development command
 starts JSON Server from `db.json` automatically, reuses it if it is already
 running, and stops both servers when the command exits. API data is fetched and
-mutations are managed with TanStack React Query. A browser-specific user ID is
-generated once and saved in local storage; new projects use it for both `owner`
-and `createdBy`.
+mutations are managed with TanStack React Query. Each account has a stable user
+ID used for project and task ownership.
 Project, task, and sign-in form inputs are validated with Zod before submission.
 Open a project from the projects page to view its details and related tasks at
 `/project/:id`.
 
-The sign-in form creates a browser-local demo session managed with React
-Context. React Router protects the dashboard, tasks, projects, and project
-detail routes, and restores the requested route after sign-in. This demo does
-not verify credentials or provide secure authentication; use a backend auth
-service for real accounts. Signing out clears the session, while the demo user
-ID remains in local storage for project/task ownership display.
+Users can create an account, sign in with its credentials, and update their
+name, email, or password from `/account`. React Context manages the browser
+session, and React Router protects workspace and account routes. The demo keeps
+accounts and sessions in browser local storage and hashes passwords with
+PBKDF2; it is not a substitute for server-side authentication or authorization.
+Use a backend auth service for production accounts.
 
 ## Other commands
 
