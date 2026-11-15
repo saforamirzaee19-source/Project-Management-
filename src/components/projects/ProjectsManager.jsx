@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   createProject,
@@ -51,6 +51,7 @@ function ProjectsManager() {
   });
   const projects = projectsQuery.data ?? [];
   const [filter, setFilter] = useState("");
+  const [debouncedFilter, setDebouncedFilter] = useState("");
   const [modalProject, setModalProject] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalError, setModalError] = useState("");
@@ -73,7 +74,15 @@ function ProjectsManager() {
   });
 
   const saving = createMutation.isPending || updateMutation.isPending;
-  const normalizedFilter = filter.trim().toLocaleLowerCase();
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setDebouncedFilter(filter);
+    }, 300);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [filter]);
+
+  const normalizedFilter = debouncedFilter.trim().toLocaleLowerCase();
   const filteredProjects = normalizedFilter
     ? projects.filter((project) =>
         matchesProjectFilter(project, normalizedFilter),

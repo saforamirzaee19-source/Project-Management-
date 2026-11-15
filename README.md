@@ -10,23 +10,19 @@ Install dependencies:
 npm install
 ```
 
-Start the mock API in one terminal:
-
-```sh
-npm run dev:api
-```
-
-Start the app in another terminal:
+Start the app and mock API together:
 
 ```sh
 npm run dev
 ```
 
 The dashboard fetches tasks from `/api/tasks`. Vite proxies that request to the
-JSON Server running at `http://localhost:3001/tasks`. The sample data is in
-`db.json`. API data is fetched and mutations are managed with TanStack React
-Query. A browser-specific user ID is generated once and saved in local storage;
-new projects use it for both `owner` and `createdBy`.
+JSON Server running at `http://localhost:3001/tasks`. The development command
+starts JSON Server from `db.json` automatically, reuses it if it is already
+running, and stops both servers when the command exits. API data is fetched and
+mutations are managed with TanStack React Query. A browser-specific user ID is
+generated once and saved in local storage; new projects use it for both `owner`
+and `createdBy`.
 Project, task, and sign-in form inputs are validated with Zod before submission.
 Open a project from the projects page to view its details and related tasks at
 `/project/:id`.
