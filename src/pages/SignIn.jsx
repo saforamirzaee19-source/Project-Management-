@@ -1,12 +1,26 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import FormFieldError from "../components/FormFieldError.jsx";
 import Header from "../components/Header.jsx";
+import useAuth from "../contexts/useAuth.js";
 import { getFieldErrors, signInFormSchema } from "../validation/forms.js";
 
 function SignIn() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated, signIn } = useAuth();
   const [fieldErrors, setFieldErrors] = useState({});
+  const [authError, setAuthError] = useState("");
+  const requestedPath = location.state?.from;
+  const destination =
+    requestedPath?.pathname?.startsWith("/") &&
+    !requestedPath.pathname.startsWith("//")
+      ? `${requestedPath.pathname}${requestedPath.search || ""}${requestedPath.hash || ""}`
+      : "/dashboard";
+
+  if (isAuthenticated) {
+    return <Navigate replace to={destination} />;
+  }
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -22,7 +36,13 @@ function SignIn() {
     }
 
     setFieldErrors({});
-    navigate("/dashboard");
+    setAuthError("");
+    try {
+      signIn(result.data.email);
+      navigate(destination, { replace: true });
+    } catch (error) {
+      setAuthError(`Couldn’t sign in: ${error.message}`);
+    }
   }
 
   function handleChange(event) {
@@ -97,6 +117,11 @@ function SignIn() {
               symbol.
             </p>
 
+            {authError && (
+              <p className="text-sm text-red-700" role="alert">
+                {authError}
+              </p>
+            )}
             <button
               className="w-full rounded-full bg-[#6B352A] px-6 py-3 text-center font-semibold text-[#FFF1A6]"
               type="submit"
@@ -106,7 +131,8 @@ function SignIn() {
           </form>
 
           <p className="mt-4 text-sm">
-            This demo opens the dashboard after the form is valid.
+            Demo sign-in creates a local session; your password isn’t verified
+            with a server.
           </p>
         </div>
       </section>

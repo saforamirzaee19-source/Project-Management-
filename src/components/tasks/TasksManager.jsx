@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import useCurrentUserId from "../../contexts/useCurrentUserId.js";
 import useDebouncedValue from "../../hooks/useDebouncedValue.js";
 import matchesFilter from "../../utils/matchesFilter.js";
@@ -66,6 +66,37 @@ function TasksManager({ projectId }) {
         );
       })
     : tasks;
+  const groupedTasksByProject = new Map();
+  for (const task of filteredTasks) {
+    const projectKey = String(task.projectId ?? "");
+    let group = groupedTasksByProject.get(projectKey);
+    if (!group) {
+      const project = projects.find(
+        (item) => String(item.id) === projectKey,
+      );
+      group = {
+        key: projectKey,
+        title: project
+          ? project.title || project.name || `Project ${project.id}`
+          : projectKey
+            ? `Project ${projectKey} (not found)`
+            : "No project assigned",
+        tasks: [],
+      };
+      groupedTasksByProject.set(projectKey, group);
+    }
+    group.tasks.push(task);
+  }
+  const taskGroups = [
+    ...projects
+      .map((project) => groupedTasksByProject.get(String(project.id)))
+      .filter(Boolean),
+    ...[...groupedTasksByProject.entries()]
+      .filter(([projectKey]) => !projects.some(
+        (project) => String(project.id) === projectKey,
+      ))
+      .map(([, group]) => group),
+  ];
   const [modalTask, setModalTask] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalError, setModalError] = useState("");
@@ -258,64 +289,88 @@ function TasksManager({ projectId }) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#6B352A]/10">
-                {filteredTasks.map((task) => {
-                  const project = projects.find(
-                    (item) => String(item.id) === String(task.projectId),
-                  );
-                  const parentTask = tasks.find(
-                    (item) => String(item.id) === String(task.parentId),
-                  );
+                {taskGroups.map((group) => (
+                  <Fragment key={`group-${group.key || "unassigned"}`}>
+                    {scopedProjectId === undefined && (
+                      <tr
+                        className="bg-[#FFFDF5]"
+                        key={`project-${group.key || "unassigned"}`}
+                      >
+                        <th
+                          className="px-3 py-3 font-bold"
+                          colSpan={12}
+                          scope="rowgroup"
+                        >
+                          {group.title}
+                          <span className="ml-2 font-normal text-[#6B352A]/70">
+                            ({group.tasks.length}{" "}
+                            {group.tasks.length === 1 ? "task" : "tasks"})
+                          </span>
+                        </th>
+                      </tr>
+                    )}
+                    {group.tasks.map((task) => {
+                      const project = projects.find(
+                        (item) => String(item.id) === String(task.projectId),
+                      );
+                      const parentTask = tasks.find(
+                        (item) => String(item.id) === String(task.parentId),
+                      );
 
-                  return (
-                    <tr key={task.id}>
-                      <th className="px-3 py-4 font-semibold" scope="row">
-                        {task.title}
-                      </th>
-                      <td className="px-3 py-4">{task.priority || "—"}</td>
-                      <td className="px-3 py-4">{task.status || "—"}</td>
-                      <td className="px-3 py-4" title={task.assignee}>
-                        {formatUserId(task.assignee, userId)}
-                      </td>
-                      <td className="px-3 py-4">
-                        {project?.title || project?.name || "—"}
-                      </td>
-                      <td className="px-3 py-4">{parentTask?.title || "—"}</td>
-                      <td className="whitespace-nowrap px-3 py-4">
-                        {formatDate(task.dueDate)}
-                      </td>
-                      <td className="px-3 py-4" title={task.createdBy}>
-                        {formatUserId(task.createdBy, userId)}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-4">
-                        {formatDate(task.createdAt)}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-4">
-                        {formatDate(task.updatedAt)}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-4">
-                        {formatDate(task.completedAt)}
-                      </td>
-                      <td className="px-3 py-4">
-                        <div className="flex gap-3">
-                          <button
-                            className="font-semibold underline underline-offset-2"
-                            onClick={() => openEditModal(task)}
-                            type="button"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            className="font-semibold text-red-700 underline underline-offset-2"
-                            onClick={() => handleDelete(task)}
-                            type="button"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
+                      return (
+                        <tr key={task.id}>
+                          <th className="px-3 py-4 font-semibold" scope="row">
+                            {task.title}
+                          </th>
+                          <td className="px-3 py-4">{task.priority || "—"}</td>
+                          <td className="px-3 py-4">{task.status || "—"}</td>
+                          <td className="px-3 py-4" title={task.assignee}>
+                            {formatUserId(task.assignee, userId)}
+                          </td>
+                          <td className="px-3 py-4">
+                            {project?.title || project?.name || "—"}
+                          </td>
+                          <td className="px-3 py-4">
+                            {parentTask?.title || "—"}
+                          </td>
+                          <td className="whitespace-nowrap px-3 py-4">
+                            {formatDate(task.dueDate)}
+                          </td>
+                          <td className="px-3 py-4" title={task.createdBy}>
+                            {formatUserId(task.createdBy, userId)}
+                          </td>
+                          <td className="whitespace-nowrap px-3 py-4">
+                            {formatDate(task.createdAt)}
+                          </td>
+                          <td className="whitespace-nowrap px-3 py-4">
+                            {formatDate(task.updatedAt)}
+                          </td>
+                          <td className="whitespace-nowrap px-3 py-4">
+                            {formatDate(task.completedAt)}
+                          </td>
+                          <td className="px-3 py-4">
+                            <div className="flex gap-3">
+                              <button
+                                className="font-semibold underline underline-offset-2"
+                                onClick={() => openEditModal(task)}
+                                type="button"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                className="font-semibold text-red-700 underline underline-offset-2"
+                                onClick={() => handleDelete(task)}
+                                type="button"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </Fragment>
+                ))}
                 {filteredTasks.length === 0 && (
                   <tr>
                     <td className="px-3 py-8 text-center" colSpan={12}>

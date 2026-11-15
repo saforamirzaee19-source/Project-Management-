@@ -1,9 +1,12 @@
 import { Link } from "react-router-dom";
+import useAuth from "../contexts/useAuth.js";
 
 function Header({ page = "home" }) {
+  const { email, isAuthenticated, signOut } = useAuth();
   const isWorkspacePage = ["dashboard", "projects", "project", "tasks"].includes(
     page,
   );
+  const displayName = email?.split("@")[0] || "there";
   const headerClass =
     isWorkspacePage
       ? "sticky top-0 z-30 flex flex-wrap items-center justify-between gap-4 border-b border-[#6B352A]/15 bg-white px-6 py-5"
@@ -27,16 +30,19 @@ function Header({ page = "home" }) {
                   : "Dashboard"}
           </h1>
           <div className="flex items-center gap-3">
-            <span className="hidden text-sm sm:inline">Welcome, Ahmad</span>
-            <span className="flex size-10 items-center justify-center rounded-full bg-[#FFF1A6] font-bold">
-              A
+            <span className="hidden text-sm sm:inline">
+              Welcome, {displayName}
             </span>
-            <Link
-              to="/signin"
+            <span className="flex size-10 items-center justify-center rounded-full bg-[#FFF1A6] font-bold">
+              {displayName.charAt(0).toUpperCase()}
+            </span>
+            <button
               className="rounded-full border border-[#6B352A]/30 px-4 py-2 text-sm font-semibold transition hover:bg-[#FFF1A6]"
+              onClick={signOut}
+              type="button"
             >
               Log out
-            </Link>
+            </button>
           </div>
         </>
       ) : page === "signin" ? (
@@ -54,12 +60,21 @@ function Header({ page = "home" }) {
           >
             What it does
           </Link>
-          <Link
-            to="/signin"
-            className="rounded-full bg-[#6B352A] px-5 py-2 text-sm font-semibold text-[#FFF1A6] transition hover:opacity-90"
-          >
-            Sign in
-          </Link>
+          {isAuthenticated ? (
+            <Link
+              to="/dashboard"
+              className="rounded-full bg-[#6B352A] px-5 py-2 text-sm font-semibold text-[#FFF1A6] transition hover:opacity-90"
+            >
+              Open dashboard
+            </Link>
+          ) : (
+            <Link
+              to="/signin"
+              className="rounded-full bg-[#6B352A] px-5 py-2 text-sm font-semibold text-[#FFF1A6] transition hover:opacity-90"
+            >
+              Sign in
+            </Link>
+          )}
         </nav>
       )}
     </header>

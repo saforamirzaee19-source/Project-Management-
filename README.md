@@ -27,8 +27,12 @@ Project, task, and sign-in form inputs are validated with Zod before submission.
 Open a project from the projects page to view its details and related tasks at
 `/project/:id`.
 
-This local user ID is only a demo identity, not authentication. Clearing the
-browser's local storage creates a new ID.
+The sign-in form creates a browser-local demo session managed with React
+Context. React Router protects the dashboard, tasks, projects, and project
+detail routes, and restores the requested route after sign-in. This demo does
+not verify credentials or provide secure authentication; use a backend auth
+service for real accounts. Signing out clears the session, while the demo user
+ID remains in local storage for project/task ownership display.
 
 ## Other commands
 
