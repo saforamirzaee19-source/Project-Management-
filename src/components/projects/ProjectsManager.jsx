@@ -28,6 +28,20 @@ function formatDate(value) {
   return Number.isNaN(date.getTime()) ? "—" : date.toLocaleString();
 }
 
+function matchesProjectFilter(value, filter) {
+  if (value === null || value === undefined) {
+    return false;
+  }
+
+  if (typeof value === "object") {
+    return Object.values(value).some((nestedValue) =>
+      matchesProjectFilter(nestedValue, filter),
+    );
+  }
+
+  return String(value).toLocaleLowerCase().includes(filter);
+}
+
 function ProjectsManager() {
   const queryClient = useQueryClient();
   const userId = useCurrentUserId();
@@ -36,6 +50,7 @@ function ProjectsManager() {
     queryFn: ({ signal }) => getProjects(signal),
   });
   const projects = projectsQuery.data ?? [];
+  const [filter, setFilter] = useState("");
   const [modalProject, setModalProject] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalError, setModalError] = useState("");
@@ -58,6 +73,12 @@ function ProjectsManager() {
   });
 
   const saving = createMutation.isPending || updateMutation.isPending;
+  const normalizedFilter = filter.trim().toLocaleLowerCase();
+  const filteredProjects = normalizedFilter
+    ? projects.filter((project) =>
+        matchesProjectFilter(project, normalizedFilter),
+      )
+    : projects;
 
   function openCreateModal() {
     setModalProject(null);
@@ -177,6 +198,16 @@ function ProjectsManager() {
                 {actionError}
               </p>
             )}
+            <label className="mt-5 block max-w-md text-sm font-semibold">
+              Filter projects
+              <input
+                className="mt-2 w-full rounded-xl border border-[#6B352A]/30 px-4 py-3 font-normal outline-none focus:border-[#6B352A]"
+                onChange={(event) => setFilter(event.target.value)}
+                placeholder="Search any project field"
+                type="search"
+                value={filter}
+              />
+            </label>
             <div className="mt-5 overflow-x-auto">
               <table className="w-full min-w-[980px] border-collapse text-left text-sm">
                 <thead>
@@ -205,7 +236,7 @@ function ProjectsManager() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#6B352A]/10">
-                  {projects.map((project) => (
+                  {filteredProjects.map((project) => (
                     <tr key={project.id}>
                       <th className="px-3 py-4 font-medium" scope="row">
                         <Link
@@ -266,10 +297,12 @@ function ProjectsManager() {
                       </td>
                     </tr>
                   ))}
-                  {projects.length === 0 && (
+                  {filteredProjects.length === 0 && (
                     <tr>
                       <td className="px-3 py-8 text-center" colSpan={7}>
-                        No projects yet. Create one to get started.
+                        {projects.length === 0
+                          ? "No projects yet. Create one to get started."
+                          : "No projects match this filter."}
                       </td>
                     </tr>
                   )}
