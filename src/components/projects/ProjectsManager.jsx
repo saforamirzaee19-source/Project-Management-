@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   createProject,
@@ -8,6 +8,8 @@ import {
   updateProject,
 } from "../../services/projects.js";
 import useCurrentUserId from "../../contexts/useCurrentUserId.js";
+import useDebouncedValue from "../../hooks/useDebouncedValue.js";
+import matchesFilter from "../../utils/matchesFilter.js";
 import LoadingState from "../LoadingState.jsx";
 import ProjectModal from "./ProjectModal.jsx";
 
@@ -28,20 +30,6 @@ function formatDate(value) {
   return Number.isNaN(date.getTime()) ? "—" : date.toLocaleString();
 }
 
-function matchesProjectFilter(value, filter) {
-  if (value === null || value === undefined) {
-    return false;
-  }
-
-  if (typeof value === "object") {
-    return Object.values(value).some((nestedValue) =>
-      matchesProjectFilter(nestedValue, filter),
-    );
-  }
-
-  return String(value).toLocaleLowerCase().includes(filter);
-}
-
 function ProjectsManager() {
   const queryClient = useQueryClient();
   const userId = useCurrentUserId();
@@ -51,7 +39,7 @@ function ProjectsManager() {
   });
   const projects = projectsQuery.data ?? [];
   const [filter, setFilter] = useState("");
-  const [debouncedFilter, setDebouncedFilter] = useState("");
+  const debouncedFilter = useDebouncedValue(filter);
   const [modalProject, setModalProject] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalError, setModalError] = useState("");
@@ -74,19 +62,9 @@ function ProjectsManager() {
   });
 
   const saving = createMutation.isPending || updateMutation.isPending;
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      setDebouncedFilter(filter);
-    }, 300);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [filter]);
-
   const normalizedFilter = debouncedFilter.trim().toLocaleLowerCase();
   const filteredProjects = normalizedFilter
-    ? projects.filter((project) =>
-        matchesProjectFilter(project, normalizedFilter),
-      )
+    ? projects.filter((project) => matchesFilter(project, normalizedFilter))
     : projects;
 
   function openCreateModal() {

@@ -83,8 +83,8 @@ function TaskModal({
   const parentTasks = tasks.filter(
     (candidate) =>
       String(candidate.id) !== String(task?.id) &&
-      (fixedProjectId === undefined ||
-        String(candidate.projectId) === fixedProjectId),
+      String(candidate.projectId) ===
+        String(fixedProjectId ?? form.projectId),
   );
   const fixedProject = projects.find(
     (project) => String(project.id) === fixedProjectId,

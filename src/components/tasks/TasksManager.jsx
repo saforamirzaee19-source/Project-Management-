@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import useCurrentUserId from "../../contexts/useCurrentUserId.js";
+import useDebouncedValue from "../../hooks/useDebouncedValue.js";
+import matchesFilter from "../../utils/matchesFilter.js";
 import {
   createTask,
   deleteTask,
@@ -46,6 +48,24 @@ function TasksManager({ projectId }) {
     ? allTasks.filter((task) => String(task.projectId) === scopedProjectId)
     : allTasks;
   const projects = projectsQuery.data ?? [];
+  const [filter, setFilter] = useState("");
+  const debouncedFilter = useDebouncedValue(filter);
+  const normalizedFilter = debouncedFilter.trim().toLocaleLowerCase();
+  const filteredTasks = normalizedFilter
+    ? tasks.filter((task) => {
+        const project = projects.find(
+          (item) => String(item.id) === String(task.projectId),
+        );
+        const parentTask = tasks.find(
+          (item) => String(item.id) === String(task.parentId),
+        );
+
+        return matchesFilter(
+          [task, project, parentTask],
+          normalizedFilter,
+        );
+      })
+    : tasks;
   const [modalTask, setModalTask] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalError, setModalError] = useState("");
@@ -125,6 +145,16 @@ function TasksManager({ projectId }) {
   }
 
   async function handleDelete(task) {
+    const childTasks = allTasks.filter(
+      (candidate) => String(candidate.parentId) === String(task.id),
+    );
+    if (childTasks.length > 0) {
+      setActionError(
+        `Couldn’t delete "${task.title}": delete or reassign its child tasks first.`,
+      );
+      return;
+    }
+
     if (!window.confirm(`Delete "${task.title}"? This cannot be undone.`)) {
       return;
     }
@@ -189,6 +219,16 @@ function TasksManager({ projectId }) {
               {actionError}
             </p>
           )}
+          <label className="mt-5 block max-w-md text-sm font-semibold">
+            Filter tasks
+            <input
+              className="mt-2 w-full rounded-xl border border-[#6B352A]/30 px-4 py-3 font-normal outline-none focus:border-[#6B352A]"
+              onChange={(event) => setFilter(event.target.value)}
+              placeholder="Search any task field"
+              type="search"
+              value={filter}
+            />
+          </label>
           <div className="mt-5 overflow-x-auto">
             <table className="w-full min-w-[1500px] border-collapse text-left text-sm">
               <thead>
@@ -218,7 +258,7 @@ function TasksManager({ projectId }) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#6B352A]/10">
-                {tasks.map((task) => {
+                {filteredTasks.map((task) => {
                   const project = projects.find(
                     (item) => String(item.id) === String(task.projectId),
                   );
@@ -276,10 +316,12 @@ function TasksManager({ projectId }) {
                     </tr>
                   );
                 })}
-                {tasks.length === 0 && (
+                {filteredTasks.length === 0 && (
                   <tr>
                     <td className="px-3 py-8 text-center" colSpan={12}>
-                      No tasks yet. Create one to get started.
+                      {tasks.length === 0
+                        ? "No tasks yet. Create one to get started."
+                        : "No tasks match this filter."}
                     </td>
                   </tr>
                 )}

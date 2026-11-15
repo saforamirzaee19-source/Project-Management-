@@ -28,11 +28,6 @@ export const projectFormSchema = z.object({
 
 export function createTaskFormSchema(projects, tasks, currentTaskId) {
   const projectIds = new Set(projects.map((project) => String(project.id)));
-  const parentTaskIds = new Set(
-    tasks
-      .filter((task) => String(task.id) !== String(currentTaskId))
-      .map((task) => String(task.id)),
-  );
 
   return z
     .object({
@@ -57,12 +52,23 @@ export function createTaskFormSchema(projects, tasks, currentTaskId) {
         });
       }
 
-      if (task.parentId && !parentTaskIds.has(String(task.parentId))) {
-        context.addIssue({
-          code: "custom",
-          message: "Choose an available parent task.",
-          path: ["parentId"],
-        });
+      if (task.parentId) {
+        const parentTask = tasks.find(
+          (candidate) =>
+            String(candidate.id) === String(task.parentId) &&
+            String(candidate.id) !== String(currentTaskId),
+        );
+
+        if (
+          !parentTask ||
+          String(parentTask.projectId) !== String(task.projectId)
+        ) {
+          context.addIssue({
+            code: "custom",
+            message: "Choose a parent task from the same project.",
+            path: ["parentId"],
+          });
+        }
       }
     });
 }
