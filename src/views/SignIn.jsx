@@ -1,5 +1,7 @@
-import { useState } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import FormFieldError from "../components/FormFieldError.jsx";
 import Header from "../components/Header.jsx";
 import useAuth from "../contexts/useAuth.js";
@@ -10,23 +12,17 @@ import {
 } from "../validation/forms.js";
 
 function SignIn() {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
   const { createAccount, isAuthenticated, signIn } = useAuth();
   const [fieldErrors, setFieldErrors] = useState({});
   const [authError, setAuthError] = useState("");
   const [isSigningUp, setIsSigningUp] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const requestedPath = location.state?.from;
-  const destination =
-    requestedPath?.pathname?.startsWith("/") &&
-    !requestedPath.pathname.startsWith("//")
-      ? `${requestedPath.pathname}${requestedPath.search || ""}${requestedPath.hash || ""}`
-      : "/dashboard";
-
-  if (isAuthenticated) {
-    return <Navigate replace to={destination} />;
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace("/dashboard");
+    }
+  }, [isAuthenticated, router]);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -54,7 +50,7 @@ function SignIn() {
       } else {
         await signIn(result.data.email, result.data.password);
       }
-      navigate(destination, { replace: true });
+      router.replace("/dashboard");
     } catch (error) {
       setAuthError(
         `${isSigningUp ? "Couldn’t create account" : "Couldn’t sign in"}: ${error.message}`,

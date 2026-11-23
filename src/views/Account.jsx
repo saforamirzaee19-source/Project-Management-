@@ -1,5 +1,7 @@
+"use client";
+
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import FormFieldError from "../components/FormFieldError.jsx";
 import Header from "../components/Header.jsx";
 import Sidebar from "../components/Sidebar.jsx";
@@ -70,7 +72,7 @@ function Account() {
         <main className="p-6 md:p-8">
           <Link
             className="font-semibold underline underline-offset-4"
-            to="/dashboard"
+            href="/dashboard"
           >
             ← Dashboard
           </Link>

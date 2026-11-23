@@ -56,20 +56,6 @@ async function isApiAvailable() {
   }
 }
 
-async function isViteAvailable() {
-  try {
-    const response = await fetch("http://localhost:5173/@vite/client", {
-      signal: AbortSignal.timeout(500),
-    });
-    return (
-      response.ok &&
-      response.headers.get("content-type")?.includes("javascript")
-    );
-  } catch {
-    return false;
-  }
-}
-
 async function startDevelopmentServers() {
   if (!(await isApiAvailable())) {
     const apiServer = startChild(
@@ -100,14 +86,11 @@ async function startDevelopmentServers() {
   }
 
   if (!shuttingDown) {
-    if (await isViteAvailable()) {
-      console.log("Using the existing Vite server at http://localhost:5173/");
-    } else {
-      startChild(
-        "Vite",
-        path.join(projectRoot, "node_modules", "vite", "bin", "vite.js"),
-      );
-    }
+    startChild(
+      "Next.js",
+      path.join(projectRoot, "node_modules", "next", "dist", "bin", "next"),
+      ["dev"],
+    );
   }
 }
 

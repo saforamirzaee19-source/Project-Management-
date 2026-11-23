@@ -1,4 +1,6 @@
-import { Link } from "react-router-dom";
+"use client";
+
+import Link from "next/link";
 import Header from "../components/Header.jsx";
 
 function Home() {
@@ -25,7 +27,7 @@ function Home() {
             next.
           </p>
           <Link
-            to="#features"
+            href="#features"
             className="mt-8 inline-flex items-center gap-3 rounded-full bg-[#6B352A] px-6 py-3 font-semibold text-[#FFF1A6] transition hover:opacity-90"
           >
             Take a look <span aria-hidden="true">→</span>
