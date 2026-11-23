@@ -1,21 +1,23 @@
-import Header from "../components/Header.jsx";
-import Sidebar from "../components/Sidebar.jsx";
-import TasksManager from "../components/tasks/TasksManager.jsx";
+"use client";
 
-function Tasks() {
+import Header from "../components/Header.jsx";
+import ProjectsManager from "../components/projects/ProjectsManager.jsx";
+import Sidebar from "../components/Sidebar.jsx";
+
+function Projects() {
   return (
     <div className="min-h-screen bg-[#FFFDF5] text-[#6B352A]">
       <Sidebar />
 
       <div className="min-w-0 md:ml-60">
-        <Header page="tasks" />
+        <Header page="projects" />
 
         <main className="p-6 md:p-8">
-          <TasksManager />
+          <ProjectsManager />
         </main>
       </div>
     </div>
   );
 }
 
-export default Tasks;
+export default Projects;

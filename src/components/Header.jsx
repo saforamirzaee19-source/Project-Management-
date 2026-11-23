@@ -1,4 +1,6 @@
-import { Link } from "react-router-dom";
+"use client";
+
+import Link from "next/link";
 import useAuth from "../contexts/useAuth.js";
 
 function Header({ page = "home" }) {
@@ -18,7 +20,7 @@ function Header({ page = "home" }) {
 
   return (
     <header className={headerClass}>
-      <Link to="/" className="text-2xl font-bold tracking-tight" aria-label="Forma home">
+      <Link href="/" className="text-2xl font-bold tracking-tight" aria-label="Forma home">
         forma<span className="ml-1">.</span>
       </Link>
 
@@ -41,7 +43,7 @@ function Header({ page = "home" }) {
             </span>
             <Link
                 className="rounded-full border border-[#6B352A]/30 px-4 py-2 text-sm font-semibold transition hover:bg-[#FFF1A6]"
-                to="/account"
+                href="/account"
             >
                 Account
             </Link>
@@ -59,7 +61,7 @@ function Header({ page = "home" }) {
         </>
       ) : page === "signin" ? (
         <Link
-          to="/"
+          href="/"
           className="text-sm font-semibold underline underline-offset-4"
         >
           Back to home
@@ -67,21 +69,21 @@ function Header({ page = "home" }) {
       ) : (
         <nav className="flex items-center gap-3">
           <Link
-            to="/#features"
+            href="/#features"
             className="hidden rounded-full px-4 py-2 text-sm font-semibold sm:inline-block"
           >
             What it does
           </Link>
           {isAuthenticated ? (
             <Link
-              to="/dashboard"
+              href="/dashboard"
               className="rounded-full bg-[#6B352A] px-5 py-2 text-sm font-semibold text-[#FFF1A6] transition hover:opacity-90"
             >
               Open dashboard
             </Link>
           ) : (
             <Link
-              to="/signin"
+              href="/signin"
               className="rounded-full bg-[#6B352A] px-5 py-2 text-sm font-semibold text-[#FFF1A6] transition hover:opacity-90"
             >
               Sign in

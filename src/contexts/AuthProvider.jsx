@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { AuthContext } from "./authContext.js";
 import {
@@ -9,6 +11,10 @@ import {
 const SESSION_STORAGE_KEY = "forma.authSession";
 
 function readSession() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
   const savedSession = window.localStorage.getItem(SESSION_STORAGE_KEY);
   if (!savedSession) {
     return null;

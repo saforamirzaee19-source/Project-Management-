@@ -1,6 +1,8 @@
+"use client";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import {
   createProject,
   deleteProject,
@@ -244,7 +246,7 @@ function ProjectsManager() {
                       <th className="px-3 py-4 font-medium" scope="row">
                         <Link
                           className="font-semibold underline decoration-[#6B352A]/30 underline-offset-4 hover:decoration-[#6B352A]"
-                          to={`/project/${encodeURIComponent(String(project.id))}`}
+                          href={`/project/${encodeURIComponent(String(project.id))}`}
                         >
                           {project.title || project.name}
                         </Link>

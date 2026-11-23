@@ -1,5 +1,7 @@
+"use client";
+
 import { useQuery } from "@tanstack/react-query";
-import { Link, useParams } from "react-router-dom";
+import Link from "next/link";
 import Header from "../components/Header.jsx";
 import LoadingState from "../components/LoadingState.jsx";
 import Sidebar from "../components/Sidebar.jsx";
@@ -15,8 +17,7 @@ function formatDate(value) {
   return Number.isNaN(date.getTime()) ? "—" : date.toLocaleDateString();
 }
 
-function ProjectDetails() {
-  const { id } = useParams();
+function ProjectDetails({ id }) {
   const projectsQuery = useQuery({
     queryKey: ["projects"],
     queryFn: ({ signal }) => getProjects(signal),
@@ -56,7 +57,7 @@ function ProjectDetails() {
         <p role="status">Project not found.</p>
         <Link
           className="mt-4 inline-block font-semibold underline underline-offset-2"
-          to="/projects"
+          href="/projects"
         >
           Back to projects
         </Link>
@@ -101,7 +102,7 @@ function ProjectDetails() {
         <main className="space-y-6 p-6 md:p-8">
           <Link
             className="inline-block font-semibold underline underline-offset-4"
-            to="/projects"
+            href="/projects"
           >
             ← All projects
           </Link>

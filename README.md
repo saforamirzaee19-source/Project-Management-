@@ -1,6 +1,7 @@
 # Forma
 
-Forma is a small React project-management demo built with Vite and Tailwind CSS.
+Forma is a small React project-management demo built with Next.js App Router
+and Tailwind CSS.
 
 ## Run locally
 
@@ -17,7 +18,7 @@ npm run dev
 ```
 
 The app fetches project and task data from the JSON Server running at
-`http://localhost:3001`. Vite proxies API requests, and the development command
+`http://localhost:3001`. Next.js proxies API requests, and the development command
 starts JSON Server from `db.json` automatically, reuses it if it is already
 running, and stops both servers when the command exits. API data is fetched and
 mutations are managed with TanStack React Query. Each account has a stable user

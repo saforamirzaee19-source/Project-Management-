@@ -1,3 +1,5 @@
+"use client";
+
 import { useQuery } from "@tanstack/react-query";
 import Header from "../components/Header.jsx";
 import LoadingState from "../components/LoadingState.jsx";
