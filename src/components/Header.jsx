@@ -4,7 +4,13 @@ import Link from "next/link";
 import useAuth from "../contexts/useAuth.js";
 
 function Header({ page = "home" }) {
-  const { displayName: accountName, email, isAuthenticated, signOut } = useAuth();
+  const {
+    displayName: accountName,
+    email,
+    isAuthenticated,
+    isLoading,
+    signOut,
+  } = useAuth();
   const isWorkspacePage = [
     "account",
     "dashboard",
@@ -74,7 +80,7 @@ function Header({ page = "home" }) {
           >
             What it does
           </Link>
-          {isAuthenticated ? (
+          {!isLoading && isAuthenticated ? (
             <Link
               href="/dashboard"
               className="rounded-full bg-[#6B352A] px-5 py-2 text-sm font-semibold text-[#FFF1A6] transition hover:opacity-90"

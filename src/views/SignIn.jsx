@@ -189,8 +189,7 @@ function SignIn() {
             </button>
           </p>
           <p className="mt-4 text-xs leading-5">
-            Demo accounts are stored in this browser only. Use a secure backend
-            authentication service for production.
+            Accounts and sessions are protected by Auth.js NextAuth.
           </p>
         </div>
       </section>
