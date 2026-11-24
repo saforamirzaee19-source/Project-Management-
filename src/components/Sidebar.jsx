@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import useAuth from "../contexts/useAuth.js";
 
 const tabs = [
   { label: "Overview", to: "/dashboard" },
@@ -11,6 +12,9 @@ const tabs = [
 
 function Sidebar() {
   const pathname = usePathname();
+  const { role } = useAuth();
+  const visibleTabs =
+    role === "admin" ? [...tabs, { label: "Admin", to: "/admin" }] : tabs;
 
   return (
     <aside className="bg-[#6B352A] p-6 text-white md:fixed md:inset-y-0 md:left-0 md:z-40 md:w-60 md:overflow-y-auto">
@@ -22,7 +26,7 @@ function Sidebar() {
         aria-label="Dashboard navigation"
         className="mt-8 flex gap-2 overflow-x-auto md:flex-col"
       >
-        {tabs.map(({ label, to }) => (
+        {visibleTabs.map(({ label, to }) => (
           <Link
             key={to}
             className={

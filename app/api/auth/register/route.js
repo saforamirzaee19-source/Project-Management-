@@ -34,6 +34,7 @@ export async function POST(request) {
     userId: `user-${crypto.randomUUID()}`,
     displayName,
     email,
+    role: "user",
     passwordSalt,
     passwordHash: hashPassword(password, passwordSalt),
   };

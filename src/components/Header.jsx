@@ -17,6 +17,7 @@ function Header({ page = "home" }) {
     "projects",
     "project",
     "tasks",
+    "admin",
   ].includes(page);
   const displayName = accountName || email?.split("@")[0] || "there";
   const headerClass =
@@ -41,7 +42,9 @@ function Header({ page = "home" }) {
                   ? "My tasks"
                     : page === "account"
                       ? "Account"
-                      : "Dashboard"}
+                      : page === "admin"
+                        ? "Admin"
+                        : "Dashboard"}
           </h1>
           <div className="flex items-center gap-3">
             <span className="hidden text-sm sm:inline">

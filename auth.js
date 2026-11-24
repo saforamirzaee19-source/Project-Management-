@@ -75,9 +75,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return token;
     },
-    session({ session, token }) {
+    async session({ session, token }) {
       if (session.user) {
         session.user.id = token.userId;
+        const database = await readDatabase();
+        const account = database.accounts?.find(
+          (candidate) => candidate.userId === token.userId,
+        );
+        session.user.role = account?.role === "admin" ? "admin" : "user";
       }
       return session;
     },

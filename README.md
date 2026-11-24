@@ -17,20 +17,20 @@ Start the app:
 npm run dev
 ```
 
-The app uses Next.js API route handlers for projects and tasks. The API reads
-and writes `db.json` on the server, and the development command starts only
-Next.js. API data is fetched and mutations are managed with TanStack React
-Query. Each account has a stable user ID used for project and task ownership.
-Project, task, and sign-in form inputs are validated with Zod before submission.
-Open a project from the projects page to view its details and related tasks at
-`/project/:id`.
+The app uses the Next.js App Router, Next.js route handlers, and NextAuth
+credentials authentication. Account records and project/task data are stored
+in `db.json`; passwords are salted and hashed with PBKDF2. Protected pages and
+API reads require an authenticated session. Project, task, and sign-in form
+inputs are validated with Zod. Open a project from the projects page to view
+its details and related tasks at `/project/:id`.
 
-Users can create an account, sign in with its credentials, and update their
-name, email, or password from `/account`. React Context manages the browser
-session, and React Router protects workspace and account routes. The demo keeps
-accounts and sessions in browser local storage and hashes passwords with
-PBKDF2; it is not a substitute for server-side authentication or authorization.
-Use a backend auth service for production accounts.
+Users can create an account, sign in, and update their name, email, or password
+from `/account`. New accounts are always regular users. To bootstrap the first
+administrator, register the account, stop the development server, and set that
+account's `"role"` to `"admin"` in the `accounts` array in `db.json`. After
+restarting the app, administrators can grant or remove administrator access at
+`/admin`. Role changes are checked on the server; users cannot change their own
+role, and the last administrator cannot be demoted.
 
 ## Other commands
 

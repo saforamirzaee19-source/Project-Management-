@@ -38,6 +38,7 @@ function AuthProvider({ children }) {
   const value = {
     displayName: session?.user?.name ?? null,
     email: session?.user?.email ?? null,
+    role: session?.user?.role ?? "user",
     isAuthenticated: status === "authenticated",
     isLoading: status === "loading",
     createAccount,

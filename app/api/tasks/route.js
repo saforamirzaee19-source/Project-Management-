@@ -19,6 +19,10 @@ function validateTask(task, projects) {
 }
 
 export async function GET() {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return json({ error: "Authentication required." }, 401);
+  }
   const database = await readDatabase();
   return json(database.tasks ?? []);
 }
