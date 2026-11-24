@@ -11,18 +11,16 @@ Install dependencies:
 npm install
 ```
 
-Start the app and mock API together:
+Start the app:
 
 ```sh
 npm run dev
 ```
 
-The app fetches project and task data from the JSON Server running at
-`http://localhost:3001`. Next.js proxies API requests, and the development command
-starts JSON Server from `db.json` automatically, reuses it if it is already
-running, and stops both servers when the command exits. API data is fetched and
-mutations are managed with TanStack React Query. Each account has a stable user
-ID used for project and task ownership.
+The app uses Next.js API route handlers for projects and tasks. The API reads
+and writes `db.json` on the server, and the development command starts only
+Next.js. API data is fetched and mutations are managed with TanStack React
+Query. Each account has a stable user ID used for project and task ownership.
 Project, task, and sign-in form inputs are validated with Zod before submission.
 Open a project from the projects page to view its details and related tasks at
 `/project/:id`.

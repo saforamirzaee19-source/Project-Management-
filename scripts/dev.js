@@ -1,6 +1,5 @@
 import { spawn } from "node:child_process";
 import process from "node:process";
-import { setTimeout as delay } from "node:timers/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -45,46 +44,7 @@ function startChild(name, scriptPath, args = []) {
   return child;
 }
 
-async function isApiAvailable() {
-  try {
-    const response = await fetch("http://127.0.0.1:3001/tasks", {
-      signal: AbortSignal.timeout(500),
-    });
-    return response.ok && Array.isArray(await response.json());
-  } catch {
-    return false;
-  }
-}
-
 async function startDevelopmentServers() {
-  if (!(await isApiAvailable())) {
-    const apiServer = startChild(
-      "API server",
-      path.join(projectRoot, "node_modules", "json-server", "lib", "bin.js"),
-      ["db.json", "--port", "3001"],
-    );
-    const startupDeadline = Date.now() + 15000;
-
-    while (!shuttingDown && Date.now() < startupDeadline) {
-      if (apiServer.exitCode !== null || apiServer.signalCode !== null) {
-        throw new Error(
-          "The API server stopped before it became available on port 3001.",
-        );
-      }
-      if (await isApiAvailable()) {
-        break;
-      }
-      await delay(250);
-    }
-
-    if (shuttingDown) {
-      return;
-    }
-    if (!(await isApiAvailable())) {
-      throw new Error("The API server did not become available on port 3001.");
-    }
-  }
-
   if (!shuttingDown) {
     startChild(
       "Next.js",
