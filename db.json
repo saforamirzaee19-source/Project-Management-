@@ -15,20 +15,6 @@
       "id": "1"
     },
     {
-      "id": "2",
-      "title": "Review project notes",
-      "priority": "Medium",
-      "status": "Up next",
-      "assignee": "user-1",
-      "projectId": "2",
-      "parentId": "",
-      "dueDate": "2026-11-12",
-      "createdBy": "user-1",
-      "createdAt": "2026-11-01T10:00:00.000Z",
-      "updatedAt": "2026-11-01T10:00:00.000Z",
-      "completedAt": null
-    },
-    {
       "id": "3",
       "title": "Share the weekly update",
       "priority": "Low",
