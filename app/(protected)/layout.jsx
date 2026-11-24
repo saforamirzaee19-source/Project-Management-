@@ -5,16 +5,16 @@ import { useRouter } from "next/navigation";
 import useAuth from "../../src/contexts/useAuth.js";
 
 export default function ProtectedLayout({ children }) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isLoading && !isAuthenticated) {
       router.replace("/signin");
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, isLoading, router]);
 
-  if (!isAuthenticated) {
+  if (isLoading || !isAuthenticated) {
     return null;
   }
 

@@ -1,5 +1,6 @@
 import { json, readDatabase, writeDatabase } from "../_lib/db.js";
 import { randomUUID } from "node:crypto";
+import { auth } from "../../../auth.js";
 
 function validateProject(project) {
   if (!project || typeof project !== "object") {
@@ -20,6 +21,10 @@ export async function GET() {
 }
 
 export async function POST(request) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return json({ error: "Authentication required." }, 401);
+  }
   const project = await request.json();
   const error = validateProject(project);
   if (error) {
@@ -31,6 +36,8 @@ export async function POST(request) {
   const created = {
     ...project,
     id: project.id || randomUUID(),
+    owner: session.user.id,
+    createdBy: session.user.id,
     title: project.title.trim(),
     createdAt: project.createdAt || now,
     updatedAt: now,

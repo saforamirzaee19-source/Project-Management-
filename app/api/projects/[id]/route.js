@@ -1,6 +1,9 @@
 import { json, readDatabase, writeDatabase } from "../../_lib/db.js";
+import { auth } from "../../../../auth.js";
 
 export async function PUT(request, { params }) {
+  const session = await auth();
+  if (!session?.user?.id) return json({ error: "Authentication required." }, 401);
   const { id } = await params;
   const project = await request.json();
   if (!project || typeof project.title !== "string" || !project.title.trim()) {
@@ -32,6 +35,8 @@ export async function PUT(request, { params }) {
 }
 
 export async function DELETE(request, { params }) {
+  const session = await auth();
+  if (!session?.user?.id) return json({ error: "Authentication required." }, 401);
   const { id } = await params;
   const database = await readDatabase();
   if (!database.projects?.some((project) => String(project.id) === String(id))) {
